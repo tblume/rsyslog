@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mmcount &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Message Modification Modules" href="idx_messagemod.html" />
+    <link rel="next" title="MaxMind/GeoIP DB lookup (mmdblookup)" href="mmdblookup.html" />
+    <link rel="prev" title="IP Address Anonymization Module (mmanon)" href="mmanon.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mmdblookup.html" title="MaxMind/GeoIP DB lookup (mmdblookup)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mmanon.html" title="IP Address Anonymization Module (mmanon)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" accesskey="U">Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mmcount">
+<h1>mmcount<a class="headerlink" href="#mmcount" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; mmcount</strong></p>
+<p><strong>Author:</strong>Bala.FA &lt;<a class="reference external" href="mailto:barumuga&#37;&#52;&#48;redhat&#46;com">barumuga<span>&#64;</span>redhat<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Status:</strong>Non project-supported module - contact author or rsyslog
+mailing list for questions</p>
+<p><strong>Available since</strong>: 7.5.0</p>
+<p><strong>Description</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre>mmcount: message modification plugin which counts messages
+
+This module provides the capability to count log messages by severity
+or json property of given app-name.  The count value is added into the
+log message as json property named &#39;mmcount&#39;
+
+Example usage of the module in the configuration file
+
+ module(load=&quot;mmcount&quot;)
+
+ # count each severity of appname gluster
+ action(type=&quot;mmcount&quot; appname=&quot;gluster&quot;)
+
+ # count each value of gf_code of appname gluster
+ action(type=&quot;mmcount&quot; appname=&quot;glusterd&quot; key=&quot;!gf_code&quot;)
+
+ # count value 9999 of gf_code of appname gluster
+ action(type=&quot;mmcount&quot; appname=&quot;glusterfsd&quot; key=&quot;!gf_code&quot; value=&quot;9999&quot;)
+
+ # send email for every 50th mmcount
+ if $app-name == &#39;glusterfsd&#39; and $!mmcount &lt;&gt; 0 and $!mmcount % 50 == 0 then {
+    $ActionMailSMTPServer smtp.example.com
+    $ActionMailFrom rsyslog@example.com
+    $ActionMailTo glusteradmin@example.com
+    $template mailSubject,&quot;50th message of gf_code=9999 on %hostname%&quot;
+    $template mailBody,&quot;RSYSLOG Alert\r\nmsg=&#39;%msg%&#39;&quot;
+    $ActionMailSubject mailSubject
+    $ActionExecOnlyOnceEveryInterval 30
+    :ommail:;RSYSLOG_SyslogProtocol23Format
+ }
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2013 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mmanon.html"
+                        title="previous chapter">IP Address Anonymization Module (mmanon)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mmdblookup.html"
+                        title="next chapter">MaxMind/GeoIP DB lookup (mmdblookup)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/mmcount.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/mmcount.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mmdblookup.html" title="MaxMind/GeoIP DB lookup (mmdblookup)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mmanon.html" title="IP Address Anonymization Module (mmanon)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" >Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imjournal: Systemd Journal Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imklog: Kernel Log Input Module" href="imklog.html" />
+    <link rel="prev" title="GSSAPI module support in rsyslog v3" href="gssapi.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imklog.html" title="imklog: Kernel Log Input Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gssapi.html" title="GSSAPI module support in rsyslog v3"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imjournal-systemd-journal-input-module">
+<h1>imjournal: Systemd Journal Input Module<a class="headerlink" href="#imjournal-systemd-journal-input-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:</strong> imjournal</p>
+<p><strong>Author:</strong> Milan Bartos &lt;<a class="reference external" href="mailto:mbartos&#37;&#52;&#48;redhat&#46;com">mbartos<span>&#64;</span>redhat<span>&#46;</span>com</a>&gt; (This module is <strong>not</strong>
+project-supported)</p>
+<p><strong>Available since</strong>: 7.3.11</p>
+<p><strong>Description</strong>:</p>
+<p>Provides the ability to import structured log messages from systemd
+journal to syslog.</p>
+<p>Note that this module reads the journal database, what is considered a
+relativly performance-intense operation. As such, the performance of a
+configuration utilizing this module may be notably slower than when
+using <a class="reference external" href="imuxsock.html">imuxsock</a>. The journal provides imuxsock with a
+copy of all &#8220;classical&#8221; syslog messages, however, it does not provide
+structured data. Only if that structured data is needed, imjournal must be used.
+Otherwise, imjournal may simply be replaced by imuxsock, and we highly
+suggest doing so.</p>
+<p>We suggest to check out our short presentation on <a class="reference external" href="http://youtu.be/GTS7EuSdFKE">rsyslog journal
+integration</a> to learn more details of
+anticipated use cases.</p>
+<p><strong>Warning:</strong> Some versions of systemd journal have problems with
+database corruption, which leads to the journal to return the same data
+endlessly in a tight loop. This results in massive message duplication
+inside rsyslog probably resulting in a denial-of-service when the system
+ressouces get exhausted. This can be somewhat mitigated by using proper
+rate-limiters, but even then there are spikes of old data which are
+endlessly repeated. By default, ratelimiting is activated and permits to
+process 20,000 messages within 10 minutes, what should be well enough
+for most use cases. If insufficient, use the parameters described below
+to adjust the permitted volume. <strong>It is strongly recommended to use this
+plugin only if there is hard need to do so.</strong></p>
+<p><strong>Configuration Directives</strong>:</p>
+<p><strong>Module Directives</strong></p>
+<ul>
+<li><p class="first"><strong>PersistStateInterval</strong> number-of-messages</p>
+<p>This is a global setting. It specifies how often should the journal
+state be persisted. The persists happens after each
+<em>number-of-messages</em>. This option is useful for rsyslog to start
+reding from the last journal message it read.</p>
+</li>
+<li><p class="first"><strong>StateFile</strong> /path/to/file</p>
+<p>This is a global setting. It specifies where the state file for
+persisting journal state is located.</p>
+</li>
+<li><p class="first"><strong>ratelimit.interval</strong> seconds (default: 600)</p>
+<p>Specifies the interval in seconds onto which rate-limiting is to be
+applied. If more than ratelimit.burst messages are read during that
+interval, further messages up to the end of the interval are
+discarded. The number of messages discarded is emitted at the end of
+the interval (if there were any discards).
+Setting this to value zero turns off ratelimiting. Note that it is
+<strong>not recommended to turn of ratelimiting</strong>, except that you know for
+sure journal database entries will never be corrupted. Without
+ratelimiting, a corrupted systemd journal database may cause a kind
+of denial of service (we are stressing this point as multiple users
+have reported us such problems with the journal database -
+information current as of June 2013).</p>
+</li>
+<li><p class="first"><strong>ratelimit.burst</strong> messages (default: 20000)</p>
+<p>Specifies the maximum number of messages that can be emitted within
+the ratelimit.interval interval. For futher information, see
+description there.</p>
+</li>
+<li><p class="first"><strong>IgnorePreviousMessages</strong> [<strong>off</strong>/on]</p>
+<p>This option specifies whether imjournal should ignore messages
+currently in journal and read only new messages. This option is only
+used when there is no StateFile to avoid message loss.</p>
+</li>
+<li><p class="first"><strong>DefaultSeverity</strong> &lt;severity&gt;</p>
+<p>Some messages comming from journald don&#8217;t have the SYSLOG_PRIORITY
+field. These are typically the messages logged through journald&#8217;s
+native API. This option specifies the default severity for these
+messages. Can be given either as a name or a number. Defaults to &#8216;notice&#8217;.</p>
+</li>
+<li><p class="first"><strong>DefaultFacility</strong> &lt;facility&gt;</p>
+<p>Some messages comming from journald don&#8217;t have the SYSLOG_FACILITY
+field. These are typically the messages logged through journald&#8217;s
+native API. This option specifies the default facility for these
+messages. Can be given either as a name or a number. Defaults to &#8216;user&#8217;.</p>
+</li>
+<li><p class="first"><strong>usepidfromsystem</strong> [<strong>off</strong>/on]</p>
+<p>Retrieves the trusted systemd parameter, _PID, instead of the user
+systemd parameter, SYSLOG_PID, which is the default.</p>
+</li>
+</ul>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<ul class="simple">
+<li>As stated above, a corrupted systemd journal database can cause major
+problems, depending on what the corruption results in. This is beyond
+the control of the rsyslog team.</li>
+<li>imjournal does not check if messages received actually originated
+from rsyslog itself (via omjournal or other means). Depending on
+configuration, this can also lead to a loop. With imuxsock, this
+problem does not exist.</li>
+</ul>
+<p><strong>Build Requirements:</strong></p>
+<p>Development headers for systemd, version &gt;= 197.</p>
+<p><strong>Sample:</strong></p>
+<p>The following example shows pulling structured imjournal messages and
+saving them into /var/log/ceelog.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imjournal&quot; PersistStateInterval=&quot;100&quot;
+       StateFile=&quot;/path/to/file&quot;) #load imjournal module
+module(load=&quot;mmjsonparse&quot;) #load mmjsonparse module for structured logs
+
+template(name=&quot;CEETemplate&quot; type=&quot;string&quot; string=&quot;%TIMESTAMP% %HOSTNAME% %syslogtag% @cee: %$!all-json%\n&quot; ) #template for messages
+
+action(type=&quot;mmjsonparse&quot;)
+action(type=&quot;omfile&quot; file=&quot;/var/log/ceelog&quot; template=&quot;CEETemplate&quot;)
+</pre></div>
+</div>
+<p><strong>Legacy Configuration Directives</strong>:</p>
+<ul>
+<li><p class="first"><strong>$imjournalPersistStateInterval</strong></p>
+<p>Equivalent to: PersistStateInterval</p>
+</li>
+<li><p class="first"><strong>$imjournalStateFile</strong></p>
+<p>Equivalent to: StateFile</p>
+</li>
+<li><p class="first"><strong>$imjournalRatelimitInterval</strong></p>
+<p>Equivalent to: ratelimit.interval</p>
+</li>
+<li><p class="first"><strong>$imjournalRatelimitBurst</strong></p>
+<p>Equivalent to: ratelimit.burst</p>
+</li>
+<li><p class="first"><strong>$ImjournalIgnorePreviousMessages</strong></p>
+<p>Equivalent to: ignorePreviousMessages</p>
+</li>
+<li><dl class="first docutils">
+<dt><strong>$ImjournalDefaultSeverity</strong></dt>
+<dd><p class="first last">Equivalent to: DefaultSeverity</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>$ImjournalDefaultFacility</strong></dt>
+<dd><p class="first last">Equivalent to: DefaultFacility</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gssapi.html"
+                        title="previous chapter">GSSAPI module support in rsyslog v3</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imklog.html"
+                        title="next chapter">imklog: Kernel Log Input Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imjournal.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imjournal.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imklog.html" title="imklog: Kernel Log Input Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gssapi.html" title="GSSAPI module support in rsyslog v3"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

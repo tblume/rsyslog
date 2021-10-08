@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorials &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="next" title="Encrypting Syslog Traffic with TLS (SSL)" href="tls_cert_summary.html" />
+    <link rel="prev" title="Receiving massive amounts of messages with high performance" href="../examples/high_performance.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tls_cert_summary.html" title="Encrypting Syslog Traffic with TLS (SSL)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../examples/high_performance.html" title="Receiving massive amounts of messages with high performance"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tls_cert_summary.html">Encrypting Syslog Traffic with TLS (SSL)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_scenario.html">Sample Use Case: Single Central Log Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_ca.html">Setting up the CA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_machine.html">Generating the machine certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_server.html">Setting up the Central Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_client.html">Setting up a client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_udp_relay.html">Setting up the UDP syslog relay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_errmsgs.html">Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls_cert_summary.html#overview">Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tls.html">Encrypting Syslog Traffic with TLS (SSL) [short version]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#abstract">Abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#overall-system-setup">Overall System Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#setting-up-the-system">Setting up the system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#certificates">Certificates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#revision-history">Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tls.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Writing syslog messages to MySQL, PostgreSQL or any other supported Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#abstract">Abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#overall-system-setup">Overall System Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#setting-up-the-system">Setting up the system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#on-reliability">On Reliability...</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#references-and-additional-material">References and Additional Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#revision-history">Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="high_database_rate.html">Handling a massive syslog database insert rate with Rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="high_database_rate.html#abstract">Abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="high_database_rate.html#the-intention">The Intention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="high_database_rate.html#how-to-setup">How To Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="high_database_rate.html#revision-history">Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="high_database_rate.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reliable_forwarding.html">Reliable Forwarding of syslog Messages with Rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#abstract">Abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#the-intention">The Intention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#how-to-setup">How To Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#some-final-words-on-reliability">Some Final Words on Reliability ...</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#revision-history">Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliable_forwarding.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="recording_pri.html">Recording the Priority of Syslog Messages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#abstract">Abstract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#how-is-it-done">How is it done?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#what-if-i-do-not-want-rsyslogd-to-be-the-standard-syslogd">What if I do not want rsyslogd to be the standard syslogd?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#some-sample-data">Some Sample Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#feedback-requested">Feedback Requested</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#references-and-additional-material">References and Additional Material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#revision-history">Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recording_pri.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="failover_syslog_server.html">Failover Syslog Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log_rotation_fix_size.html">Log rotation with rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="log_rotation_fix_size.html#situation">Situation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log_rotation_fix_size.html#log-rotation-based-on-a-fixed-log-size">Log rotation based on a fixed log size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log_rotation_fix_size.html#use-output-channels-for-fixed-length-syslog-files">Use Output Channels for fixed-length syslog files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log_rotation_fix_size.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gelf_forwarding.html">GELF forwarding in rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gelf_forwarding.html#situation">Situation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gelf_forwarding.html#changing-the-default-log-format-to-gelf">Changing the default log format to GELF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gelf_forwarding.html#applying-the-template-to-a-syslog-action">Applying the template to a syslog action</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gelf_forwarding.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../examples/high_performance.html"
+                        title="previous chapter">Receiving massive amounts of messages with high performance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tls_cert_summary.html"
+                        title="next chapter">Encrypting Syslog Traffic with TLS (SSL)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/tutorials/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tls_cert_summary.html" title="Encrypting Syslog Traffic with TLS (SSL)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../examples/high_performance.html" title="Receiving massive amounts of messages with high performance"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

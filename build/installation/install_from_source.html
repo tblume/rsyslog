@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installing rsyslog from Source &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Installation" href="index.html" />
+    <link rel="next" title="Installing rsyslog from the source repository" href="build_from_repo.html" />
+    <link rel="prev" title="Installing rsyslog from Package" href="packages.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="build_from_repo.html" title="Installing rsyslog from the source repository"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="packages.html" title="Installing rsyslog from Package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Installation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installing-rsyslog-from-source">
+<h1>Installing rsyslog from Source<a class="headerlink" href="#installing-rsyslog-from-source" title="Permalink to this headline">¶</a></h1>
+<p><em>Written by</em> <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a></p>
+<p><strong>In this paper, I describe how to install</strong>
+<a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>. It is intentionally a brief
+step-by-step guide, targeted to those who want to quickly get it up and
+running. For more elaborate information, please consult the rest of the
+<a class="reference internal" href="../index.html"><em>manual set</em></a>.</p>
+<div class="section" id="how-to-make-your-life-easier">
+<h2>How to make your life easier...<a class="headerlink" href="#how-to-make-your-life-easier" title="Permalink to this headline">¶</a></h2>
+<p>There are <a class="reference internal" href="packages.html"><em>RPMs/packages for rsyslog</em></a> available.
+If you use them, you can spare yourself many of the steps below.
+This is highly recommended if there is a package for your distribution
+available.</p>
+</div>
+<div class="section" id="steps-to-do">
+<h2>Steps To Do<a class="headerlink" href="#steps-to-do" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="step-1-download-software">
+<h3>Step 1 - Download Software<a class="headerlink" href="#step-1-download-software" title="Permalink to this headline">¶</a></h3>
+<p>For obvious reasons, you need to download rsyslog. Here, I assume that
+you use a distribution tarball. If you would like to use a version
+directly from the repository, see <a class="reference external" href="build_from_repo.html">build rsyslog from
+repository</a> instead.</p>
+<p>Load the most recent build from
+<a class="reference external" href="http://www.rsyslog.com/downloads">http://www.rsyslog.com/downloads</a>.
+Extract the software with &#8220;tar xzf -nameOfDownloadSet-&#8221;. This will
+create a new subdirectory rsyslog-version in the current working
+directory. cd into that.</p>
+<p>Depending on your system configuration, you also need to install some
+build tools, most importantly make, the gcc compiler and the MySQL
+development system (if you intend to use MySQL - the package is often
+named &#8220;mysql-dev&#8221;). On many systems, these things should already be
+present. If you don&#8217;t know exactly, simply skip this step for now and
+see if nice error messages pop up during the compile process. If they
+do, you can still install the missing build environment tools. So this
+is nothing that you need to look at very carefully.</p>
+</div>
+<div class="section" id="build-requirements">
+<h3>Build Requirements<a class="headerlink" href="#build-requirements" title="Permalink to this headline">¶</a></h3>
+<p>At a minimum, the following development tools must be present on the
+system:</p>
+<ul class="simple">
+<li>C compiler (usually gcc)</li>
+<li>make</li>
+<li>libtool</li>
+<li>rst2man (part of Python docutils) if you want to generate the man files</li>
+<li>Bison and Flex (preferrably, otherwise yacc and lex)</li>
+<li>zlib development package (usually <em>libz-dev</em>)</li>
+<li>json-c (usually named <em>libjson0-dev</em> or similar)</li>
+<li>libuuid (usually <em>uuid-dev</em>, if not present use &#8211;disable-uuid)</li>
+<li>libgcrypt (usually <em>libgcrypt-dev</em>)</li>
+</ul>
+<p>Also, development versions of the following supporting libraries
+that the rsyslog project provides are necessary:</p>
+<ul class="simple">
+<li>liblogging (only stdlog component is hard requirement)</li>
+<li>libestr</li>
+</ul>
+<p>In contrast to the other dependencies, recent versions of rsyslog may
+require recent versions of these libraries as well, so there is a chance
+that they must be built from source, too.</p>
+<p>Depending on which plugins are enabled, additional dependencies exist.
+These are reported during the ./configure run.</p>
+<p><strong>Important</strong>: you need the <strong>development</strong> version of the packages in
+question. That is the version which is used by developers to build software
+that uses the respecitive package. Usually, they are separate from the
+regular user package. So if you just install the regular package but not
+the development one, ./configure will fail.</p>
+<p>As a concrete example, you may want to build ommysql. It obviously requires
+a package like <em>mysql-client</em>, but that is just the regular package and not
+sufficient to buid rsyslog succesfully. To do so, you need to also install
+something named like <em>mysql-client-dev</em>.</p>
+<p>Usually, the regular package is
+automatically installed, when you select the development package, but not
+vice versa. The exact behaviour and names depend on the distribution you use.
+It is quite common to name development packages something along the line of
+<em>pkgname-dev</em> or <em>pkgname-devel</em> where <em>pkgname</em> is the regular package name
+(like <em>mysql-client</em> in the above example).</p>
+</div>
+<div class="section" id="step-2-run-configure">
+<h3>Step 2 - Run ./configure<a class="headerlink" href="#step-2-run-configure" title="Permalink to this headline">¶</a></h3>
+<p>Run ./configure to adopt rsyslog to your environment. While doing so,
+you can also enable options. Configure will display selected options
+when it is finished. For example, to enable MySQL support, run</p>
+<div class="highlight-python"><div class="highlight"><pre>./configure --enable-mysql
+</pre></div>
+</div>
+<p>Please note that MySQL support by default is NOT disabled.</p>
+<p>To learn which ./configure options are available and what their
+default values are, use</p>
+<p><code class="docutils literal"><span class="pre">./configure</span> <span class="pre">--help</span></code></p>
+</div>
+<div class="section" id="step-3-compile">
+<h3>Step 3 - Compile<a class="headerlink" href="#step-3-compile" title="Permalink to this headline">¶</a></h3>
+<p>That is easy. Just type &#8220;make&#8221; and let the compiler work. On any recent
+system, that should be a very quick task, on many systems just a matter
+of a few seconds. If an error message comes up, most probably a part of
+your build environment is not installed. Check with step 1 in those
+cases.</p>
+</div>
+<div class="section" id="step-4-install">
+<h3>Step 4 - Install<a class="headerlink" href="#step-4-install" title="Permalink to this headline">¶</a></h3>
+<p>Again, that is quite easy. All it takes is a &#8220;sudo make install&#8221;. That will
+copy the rsyslogd and the man pages to the relevant directories.</p>
+</div>
+<div class="section" id="step-5-configure-rsyslogd">
+<h3>Step 5 - Configure rsyslogd<a class="headerlink" href="#step-5-configure-rsyslogd" title="Permalink to this headline">¶</a></h3>
+<p>In this step, you tell rsyslogd what to do with received messages. If
+you are upgrading from stock syslogd, /etc/syslog.conf is probably a
+good starting point. Rsyslogd understands stock syslogd syntax, so you
+can simply copy over /etc/syslog.conf to /etc/rsyslog.conf. Note since
+version 3 rsyslog requires to load plug-in modules to perform useful
+work (more about <a class="reference external" href="v3compatibility.html">compatibilty notes v3</a>). To
+load the most common plug-ins, add the following to the top of
+rsyslog.conf:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad immark # provides --MARK-- message capability
+$ModLoad imudp # provides UDP syslog reception
+$ModLoad imtcp # provides TCP syslog reception
+$ModLoad imuxsock # provides support for local system logging
+$ModLoad imklog # provides kernel logging support
+</pre></div>
+</div>
+<p>Change rsyslog.conf for any further enhancements you would like to see.
+For example, you can add database writing as outlined in the paper
+&#8220;<a class="reference external" href="rsyslog_mysql.html">Writing syslog Data to MySQL</a>&#8221; (remember you
+need to enable MySQL support during step 2 if you want to do that!).</p>
+</div>
+<div class="section" id="step-6-disable-stock-syslogd">
+<h3>Step 6 - Disable stock syslogd<a class="headerlink" href="#step-6-disable-stock-syslogd" title="Permalink to this headline">¶</a></h3>
+<p><strong>You can skip this and the following steps if rsyslog was already
+installed as the stock
+syslogd on your system (e.g. via a distribution default or package).</strong>
+In this case, you are finished.</p>
+<p>If another syslogd is installed, it must be disabled and rsyslog set
+to become the default. This is because
+both it and rsyslogd listen to the same sockets, they can NOT be run
+concurrently. So you need to disable the stock syslogd. To do this, you
+typically must change your rc.d startup scripts.</p>
+<p>For example, under <a class="reference external" href="http://www.debian.org/">Debian</a> this must be done
+as follows: The default runlevel is 2. We modify the init scripts for
+runlevel 2 - in practice, you need to do this for all run levels you
+will ever use (which probably means all). Under /etc/rc2.d there is a
+S10sysklogd script (actually a symlink). Change the name to
+_S10sysklogd (this keeps the symlink in place, but will prevent further
+execution - effectively disabling it).</p>
+</div>
+<div class="section" id="step-7-enable-rsyslogd-autostart">
+<h3>Step 7 - Enable rsyslogd Autostart<a class="headerlink" href="#step-7-enable-rsyslogd-autostart" title="Permalink to this headline">¶</a></h3>
+<p>This step is very close to step 3. Now, we want to enable rsyslogd to
+start automatically. The rsyslog package contains a (currently small)
+number of startup scripts. They are inside the distro-specific directory
+(e.g. debian). If there is nothing for your operating system, you can
+simply copy the stock syslogd startup script and make the minor
+modifications to run rsyslogd (the samples should be of help if you
+intend to do this).</p>
+<p>In our Debian example, the actual scripts are stored in /etc/init.d.
+Copy the standard script to that location. Then, you need to add a
+symlink to it in the respective rc.d directory. In our sample, we modify
+rc2.d, and can do this via the command &#8220;ln -s ../init.d/rsyslogd
+S10rsyslogd&#8221;. Please note that the S10 prefix tells the system to start
+rsyslogd at the same time stock sysklogd was started.</p>
+<p><strong>Important:</strong> if you use the database functionality, you should make
+sure that MySQL starts before rsyslogd. If it starts later, you will
+receive an error message during each restart (this might be acceptable
+to you). To do so, either move MySQL&#8217;s start order before rsyslogd or
+rsyslogd&#8217;s after MySQL.</p>
+</div>
+<div class="section" id="step-8-check-daily-cron-scripts">
+<h3>Step 8 - Check daily cron scripts<a class="headerlink" href="#step-8-check-daily-cron-scripts" title="Permalink to this headline">¶</a></h3>
+<p>Most distributions come pre-configured with some daily scripts for log
+rotation. As long as you use the same log file names, the log rotation
+scripts will probably work quite well. There is one caveat, though. The
+scripts need to tell syslogd that the files have been rotated. To do
+this, they typically have a part using syslogd&#8217;s init script to do that.
+Obviously, scripts for other default daemons do not know about rsyslogd, so they
+manipulate the other one. If that happens, in most cases an additional
+instance of that daemon is started.  It also means that rsyslogd
+is not properly told about the log rotation, which will lead it to
+continue to write to the now-rotated files.</p>
+<p>So you need to fix these scripts. See your distro-specific documentation
+how they are located.</p>
+</div>
+<div class="section" id="done">
+<h3>Done<a class="headerlink" href="#done" title="Permalink to this headline">¶</a></h3>
+<p>This concludes the steps necessary to install rsyslog. Of course, it is
+always a good idea to test everything thoroughly. At a minimalist level,
+you should do a reboot and after that check if everything has come up
+correctly. Pay attention not only to running processes, but also check
+if the log files (or the database) are correctly being populated.</p>
+<p>If rsyslogd encounters any serious errors during startup, you should be
+able to see them at least on the system console. They might not be in
+log file, as errors might occur before the log file rules are in place.
+So it is always a good idea to check system console output when things
+don&#8217;t go smooth. In some rare cases, enabling debug logging (-d option)
+in rsyslogd can be helpful. If all fails, go to
+<a class="reference external" href="http://www.rsyslog.com">www.rsyslog.com</a> and check the forum or
+mailing list for help with your issue.</p>
+</div>
+</div>
+<div class="section" id="housekeeping-stuff">
+<h2>Housekeeping stuff<a class="headerlink" href="#housekeeping-stuff" title="Permalink to this headline">¶</a></h2>
+<p>This section and its subsections contain all these nice things that you
+usually need to read only if you are really curios ;)</p>
+<div class="section" id="feedback-requested">
+<h3>Feedback requested<a class="headerlink" href="#feedback-requested" title="Permalink to this headline">¶</a></h3>
+<p>I would appreciate feedback on this tutorial.
+Additional ideas, comments or bug sighting reports are very
+welcome. Please <a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">let me know</a> about
+them.</p>
+</div>
+<div class="section" id="revision-history">
+<h3>Revision History<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>2005-08-08 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a> *
+Initial version created</li>
+<li>2005-08-09 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a> *
+updated to include distro-specific directories, which are now
+mandatory</li>
+<li>2005-09-06 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a> *
+added information on log rotation scripts</li>
+<li>2007-07-13 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a>&nbsp;*
+updated to new autotools-based build system</li>
+<li>2008-10-01 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a>&nbsp;*
+added info on building from source repository</li>
+<li>2014-03181 * <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer
+Gerhards</a>&nbsp; *
+revamped doc to match current state.</li>
+</ul>
+</div>
+<div class="section" id="copyright">
+<h3>Copyright<a class="headerlink" href="#copyright" title="Permalink to this headline">¶</a></h3>
+<p>Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A
+copy of the license can be viewed at
+<a class="reference external" href="http://www.gnu.org/copyleft/fdl.html">http://www.gnu.org/copyleft/fdl.html</a>.</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2005-2008 by <a class="reference external" href="http://www.adiscon.com/en/people/rainer-gerhards.php">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 1.2 or higher.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing rsyslog from Source</a><ul>
+<li><a class="reference internal" href="#how-to-make-your-life-easier">How to make your life easier...</a></li>
+<li><a class="reference internal" href="#steps-to-do">Steps To Do</a><ul>
+<li><a class="reference internal" href="#step-1-download-software">Step 1 - Download Software</a></li>
+<li><a class="reference internal" href="#build-requirements">Build Requirements</a></li>
+<li><a class="reference internal" href="#step-2-run-configure">Step 2 - Run ./configure</a></li>
+<li><a class="reference internal" href="#step-3-compile">Step 3 - Compile</a></li>
+<li><a class="reference internal" href="#step-4-install">Step 4 - Install</a></li>
+<li><a class="reference internal" href="#step-5-configure-rsyslogd">Step 5 - Configure rsyslogd</a></li>
+<li><a class="reference internal" href="#step-6-disable-stock-syslogd">Step 6 - Disable stock syslogd</a></li>
+<li><a class="reference internal" href="#step-7-enable-rsyslogd-autostart">Step 7 - Enable rsyslogd Autostart</a></li>
+<li><a class="reference internal" href="#step-8-check-daily-cron-scripts">Step 8 - Check daily cron scripts</a></li>
+<li><a class="reference internal" href="#done">Done</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#housekeeping-stuff">Housekeeping stuff</a><ul>
+<li><a class="reference internal" href="#feedback-requested">Feedback requested</a></li>
+<li><a class="reference internal" href="#revision-history">Revision History</a></li>
+<li><a class="reference internal" href="#copyright">Copyright</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="packages.html"
+                        title="previous chapter">Installing rsyslog from Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="build_from_repo.html"
+                        title="next chapter">Installing rsyslog from the source repository</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/installation/install_from_source.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/installation/install_from_source.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="build_from_repo.html" title="Installing rsyslog from the source repository"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="packages.html" title="Installing rsyslog from Package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Installation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

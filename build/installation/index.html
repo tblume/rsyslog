@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="next" title="Installing rsyslog from Package" href="packages.html" />
+    <link rel="prev" title="Lookup Tables" href="../configuration/lookup_tables.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="packages.html" title="Installing rsyslog from Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../configuration/lookup_tables.html" title="Lookup Tables"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Installation is usually as simple as saying</p>
+<p><code class="docutils literal"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">yum</span> <span class="pre">install</span> <span class="pre">rsyslog</span></code></p>
+<p>or</p>
+<p><code class="docutils literal"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">rsyslog</span></code></p>
+<p>However, distributions usually provide rather old versions of
+rsyslog, and so there are chances you want to have something
+newer. In that case, you need to either use the rsyslog project&#8217;s
+own packages, a distribution tarball or build directly from repo.
+All of this is detailled in this chapter.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="packages.html">Installing rsyslog from Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="packages.html#package-availability">Package Availability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html#package-structure">Package Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html#contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install_from_source.html">Installing rsyslog from Source</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install_from_source.html#how-to-make-your-life-easier">How to make your life easier...</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_from_source.html#steps-to-do">Steps To Do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_from_source.html#housekeeping-stuff">Housekeeping stuff</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="build_from_repo.html">Installing rsyslog from the source repository</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="build_from_repo.html#obtaining-the-source">Obtaining the Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_from_repo.html#prequisites">Prequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_from_repo.html#creating-the-build-environment">Creating the Build Environment</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../configuration/lookup_tables.html"
+                        title="previous chapter">Lookup Tables</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="packages.html"
+                        title="next chapter">Installing rsyslog from Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/installation/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/installation/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="packages.html" title="Installing rsyslog from Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../configuration/lookup_tables.html" title="Lookup Tables"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imtcp: TCP Syslog Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imudp: UDP Syslog Input Module" href="imudp.html" />
+    <link rel="prev" title="imsolaris: Solaris Input Module" href="imsolaris.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imudp.html" title="imudp: UDP Syslog Input Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imsolaris.html" title="imsolaris: Solaris Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imtcp-tcp-syslog-input-module">
+<h1>imtcp: TCP Syslog Input Module<a class="headerlink" href="#imtcp-tcp-syslog-input-module" title="Permalink to this headline">¶</a></h1>
+<p>Provides the ability to receive syslog messages via TCP. Encryption is
+natively provided by selecting the approprioate network stream driver
+and can also be provided by using <a class="reference external" href="rsyslog_stunnel.html">stunnel</a> (an
+alternative is the use the <a class="reference external" href="imgssapi.html">imgssapi</a> module).</p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<div class="section" id="configuration-parameters">
+<h2>Configuration Parameters<a class="headerlink" href="#configuration-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-parameters">
+<h3>Module Parameters<a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt>
+<code class="descname">AddtlFrameDelimiter &lt;Delimiter&gt;</code></dt>
+<dd><p>This directive permits to specify an additional frame delimiter for
+Multiple receivers may be configured by specifying $InputTCPServerRun
+multiple times. This is available since version 4.3.1, earlier
+versions do NOT support it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">DisableLFDelimiter on/off</code></dt>
+<dd><p><em>Default is off</em></p>
+<p>Industry-strandard plain text tcp syslog uses the LF to delimit
+syslog frames. However, some users brought up the case that it may be
+useful to define a different delimiter and totally disable LF as a
+delimiter (the use case named were multi-line messages). This mode is
+non-standard and will probably come with a lot of problems. However,
+as there is need for it and it is relatively easy to support, we do
+so. Be sure to turn this setting to &#8220;on&#8221; only if you exactly know
+what you are doing. You may run into all sorts of troubles, so be
+prepared to wrangle with that!</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">NotifyOnConnectionClose on/off</code></dt>
+<dd><p><em>Default is off</em></p>
+<p>Instructs imtcp to emit a message if the remote peer closes a
+connection.</p>
+<p><strong>Important:</strong> This directive is global to all listeners and must be
+given right after loading imtcp, otherwise it may have no effect.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive on/off</code></dt>
+<dd><p><em>Default is off</em></p>
+<p>enable of disable keep-alive packets at the tcp socket layer. The
+default is to disable them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Probes &lt;number&gt;</code></dt>
+<dd><p>The number of unacknowledged probes to send before considering the
+connection dead and notifying the application layer. The default, 0,
+means that the operating system defaults are used. This has only
+effect if keep-alive is enabled. The functionality may not be
+available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Interval &lt;number&gt;</code></dt>
+<dd><p>The interval between subsequential keepalive probes, regardless of
+what the connection has exchanged in the meantime. The default, 0,
+means that the operating system defaults are used. This has only
+effect if keep-alive is enabled. The functionality may not be
+available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Time &lt;number&gt;</code></dt>
+<dd><p>The interval between the last data packet sent (simple ACKs are not
+considered data) and the first keepalive probe; after the connection
+is marked to need keepalive, this counter is not used any further.
+The default, 0, means that the operating system defaults are used.
+This has only effect if keep-alive is enabled. The functionality may
+not be available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">FlowControl on/off</code></dt>
+<dd><p><em>Default is on</em></p>
+<p>This setting specifies whether some message flow control shall be
+exercised on the related TCP input. If set to on, messages are
+handled as &#8220;light delayable&#8221;, which means the sender is throttled a
+bit when the queue becomes near-full. This is done in order to
+preserve some queue space for inputs that can not throttle (like
+UDP), but it may have some undesired effect in some configurations.
+Still, we consider this as a useful setting and thus it is the
+default. To turn the handling off, simply configure that explicitely.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">MaxListeners &lt;number&gt;</code></dt>
+<dd><p><em>Default is 20</em></p>
+<p>Sets the maximum number of listeners (server ports) supported.
+This must be set before the first $InputTCPServerRun directive.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">MaxSessions &lt;number&gt;</code></dt>
+<dd><p><em>Default is 200</em></p>
+<p>Sets the maximum number of sessions supported. This must be set
+before the first $InputTCPServerRun directive</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">StreamDriver.Name &lt;string&gt;</code></dt>
+<dd><p>Selects <a class="reference internal" href="../../concepts/netstrm_drvr.html"><em>network stream driver</em></a>
+for all inputs using this module.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">StreamDriver.Mode &lt;number&gt;</code></dt>
+<dd><p>Sets the driver mode for the currently selected
+<a class="reference internal" href="../../concepts/netstrm_drvr.html"><em>network stream driver</em></a>.
+&lt;number&gt; is driver specific.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">StreamDriver.AuthMode &lt;mode-string&gt;</code></dt>
+<dd><p>Sets permitted peer IDs. Only these peers are able to connect to
+the listener. &lt;id-string&gt; semantics depend on the currently
+selected AuthMode and
+<a class="reference internal" href="../../concepts/netstrm_drvr.html"><em>network stream driver</em></a>.
+PermittedPeers may not be set in anonymous modes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">PermittedPeer &lt;id-string&gt;</code></dt>
+<dd><p>Sets permitted peer IDs. Only these peers are able to connect to
+the listener. &lt;id-string&gt; semantics depend on the currently
+selected AuthMode and
+<a class="reference internal" href="../../concepts/netstrm_drvr.html"><em>network stream driver</em></a>.
+PermittedPeer may not be set in anonymous modes. PermittedPeer may
+be set either to a single peer or an array of peers either of type
+IP or name, depending on the tls certificate.</p>
+<p>Single peer: PermittedPeer=&#8221;127.0.0.1&#8221;</p>
+<p>Array of peers:
+PermittedPeer=[&#8220;test1.example.net&#8221;,&#8221;10.1.2.3&#8221;,&#8221;test2.example.net&#8221;,&#8221;...&#8221;]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="input-parameters">
+<h3>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt>
+<code class="descname">Port &lt;port&gt;</code></dt>
+<dd><p>Starts a TCP server on selected port</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">address &lt;name&gt;</code></dt>
+<dd><p><em>Default: all interfaces</em></p>
+<p>On multi-homed machines, specifies to which local address the
+listerner should be bound.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">Name &lt;name&gt;</code></dt>
+<dd><p>Sets a name for the inputname property. If no name is set &#8220;imtcp&#8221; is
+used by default. Setting a name is not strictly necessary, but can be
+useful to apply filtering based on which input the message was
+received from.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">Ruleset &lt;ruleset&gt;</code></dt>
+<dd><p>Binds the listener to a specific <a class="reference internal" href="../../concepts/multi_ruleset.html"><em>ruleset</em></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">SupportOctetCountedFraming on/off</code></dt>
+<dd><p><em>Default is on</em></p>
+<p>If set to &#8220;on&#8221;, the legacy octed-counted framing (similar to RFC5425
+framing) is activated. This should be left unchanged until you know
+very well what you do. It may be useful to turn it off, if you know
+this framing is not used and some senders emit multi-line messages
+into the message stream.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Interval [number]</code></dt>
+<dd><p>Specifies the rate-limiting interval in seconds. Default value is 0,
+which turns off rate limiting. Set it to a number of seconds (5
+recommended) to activate rate-limiting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Burst [number]</code></dt>
+<dd><p>Specifies the rate-limiting burst in number of messages. Default is
+10,000.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="caveats-known-bugs">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>module always binds to all interfaces</li>
+<li>can not be loaded together with <a class="reference external" href="imgssapi.html">imgssapi</a> (which
+includes the functionality of imtcp)</li>
+</ul>
+</div>
+<div class="section" id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.rsyslog.com/howto-store-remote-messages-in-a-separate-file/">rsyslog video tutorial on how to store remote messages in a separate file</a> (for legacy syntax, but you get the idea).</li>
+</ul>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>This sets up a TCP server on port 514 and permits it to accept up to 500
+connections:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imtcp&quot; MaxSessions=&quot;500&quot;)
+input(type=&quot;imtcp&quot; port=&quot;514&quot;)
+</pre></div>
+</div>
+<p>Note that the global parameters (here: max sessions) need to be set when
+the module is loaded. Otherwise, the parameters will not apply.</p>
+</div>
+<div class="section" id="legacy-configuration-directives">
+<h2>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerAddtlFrameDelimiter &lt;Delimiter&gt;</code></dt>
+<dd><p>equivalent to: AddtlFrameDelimiter</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerDisableLFDelimiter on/off</code></dt>
+<dd><p>equivalent to: DisableLFDelimiter</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerNotifyOnConnectionClose on/off</code></dt>
+<dd><p>equivalent to: NotifyOnConnectionClose</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerKeepAlive** &lt;on/**off**&gt;</code></dt>
+<dd><p>equivalent to: KeepAlive</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerKeepAlive_probes &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Probes</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerKeepAlive_intvl &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Interval</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerKeepAlive_time &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Time</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerRun &lt;port&gt;</code></dt>
+<dd><p>equivalent to: Port</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPFlowControl on/off</code></dt>
+<dd><p>equivalent to: FlowControl</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPMaxListeners &lt;number&gt;</code></dt>
+<dd><p>equivalent to: MaxListeners</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPMaxSessions &lt;number&gt;</code></dt>
+<dd><p>equivalent to: MaxSessions</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerStreamDriverMode &lt;number&gt;</code></dt>
+<dd><p>equivalent to: StreamDriver.Mode</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerInputName &lt;name&gt;</code></dt>
+<dd><p>equivalent to: Name</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerStreamDriverAuthMode &lt;mode-string&gt;</code></dt>
+<dd><p>equivalent to: StreamDriver.AuthMode</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerStreamDriverPermittedPeer &lt;id-string&gt;</code></dt>
+<dd><p>equivalent to: PermittedPeer.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPServerBindRuleset &lt;ruleset&gt;</code></dt>
+<dd><p>equivalent to: Ruleset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputTCPSupportOctetCountedFraming on/off</code></dt>
+<dd><p>equivalent to: SupportOctetCountedFraming</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id2">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>module always binds to all interfaces</li>
+<li>can not be loaded together with <a class="reference external" href="imgssapi.html">imgssapi</a> (which
+includes the functionality of imtcp)</li>
+<li>increasing MaxSessions and MaxListeners doesn&#8217;t change MaxOpenFiles,
+consider increasing this global configuration parameter too (on Linux
+check the actual value for running process by in /proc/PID/limits; default
+limit on Linux is 1024)</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>This sets up a TCP server on port 514 and permits it to accept up to 500
+connections:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imtcp # needs to be done just once
+$InputTCPMaxSessions 500
+$InputTCPServerRun 514
+</pre></div>
+</div>
+<p>Note that the parameters (here: max sessions) need to be set <strong>before</strong>
+the listener is activated. Otherwise, the parameters will not apply.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imtcp: TCP Syslog Input Module</a><ul>
+<li><a class="reference internal" href="#configuration-parameters">Configuration Parameters</a><ul>
+<li><a class="reference internal" href="#module-parameters">Module Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#see-also">See also</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a></li>
+<li><a class="reference internal" href="#id2">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#id4">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imsolaris.html"
+                        title="previous chapter">imsolaris: Solaris Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imudp.html"
+                        title="next chapter">imudp: UDP Syslog Input Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imtcp.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imtcp.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imudp.html" title="imudp: UDP Syslog Input Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imsolaris.html" title="imsolaris: Solaris Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

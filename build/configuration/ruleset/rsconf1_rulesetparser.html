@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>$RulesetParser &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Ruleset-Specific Legacy Configuration Statements" href="index.html" />
+    <link rel="next" title="Modules" href="../modules/index.html" />
+    <link rel="prev" title="$RulesetCreateMainQueue" href="rsconf1_rulesetcreatemainqueue.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../modules/index.html" title="Modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rsconf1_rulesetcreatemainqueue.html" title="$RulesetCreateMainQueue"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" >Legacy Configuration Directives</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="index.html" accesskey="U">Ruleset-Specific Legacy Configuration Statements</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rulesetparser">
+<h1>$RulesetParser<a class="headerlink" href="#rulesetparser" title="Permalink to this headline">¶</a></h1>
+<p><strong>Type:</strong> ruleset-specific configuration directive</p>
+<p><strong>Parameter Values:</strong> string</p>
+<p><strong>Available since:</strong> 5.3.4+</p>
+<p><strong>Default:</strong> rsyslog.rfc5424 followed by rsyslog.rfc5425</p>
+<p><strong>Description:</strong></p>
+<p>This directive permits to specify which <a class="reference external" href="messageparser.html">message
+parsers</a> should be used for the ruleset in
+question. It no ruleset is explicitely specified, the default ruleset is
+used. Message parsers are contained in (loadable) parser modules with
+the most common cases (RFC3164 and RFC5424) being build-in into
+rsyslogd.</p>
+<p>When this directive is specified the first time for a ruleset, it will
+not only add the parser to the ruleset&#8217;s parser chain, it will also wipe
+out the default parser chain. So if you need to have them in addition to
+the custom parser, you need to specify those as well.</p>
+<p>Order of directives is important. Parsers are tried one after another,
+in the order they are specified inside the config. As soon as a parser
+is able to parse the message, it will do so and no other parsers will be
+executed. If no matching parser can be found, the message will be
+discarded and a warning message be issued (but only for the first 1,000
+instances of this problem, to prevent message generation loops).</p>
+<p>Note that the rfc3164 parser will <strong>always</strong> be able to parse a message
+- it may just not be the format that you like. This has two important
+implications: 1) always place that parser at the END of the parser list,
+or the other parsers after it will never be tried and 2) if you would
+like to make sure no message is lost, placing the rfc3164 parser at the
+end of the parser list ensures that.</p>
+<p>Multiple parser modules are very useful if you have various devices that
+emit messages that are malformed in various ways. The route to take then
+is</p>
+<ul class="simple">
+<li>make sure you find a custom parser for that device; if there is no
+one, you may consider writing one yourself (it is not that hard) or
+getting one written as part of <a class="reference external" href="http://www.rsyslog.com/professional-services">Adiscon&#8217;s professional services for
+rsyslog</a>.</li>
+<li>load your custom parsers via $ModLoad</li>
+<li>create a ruleset for each malformed format; assign the custom parser
+to it</li>
+<li>create a specific listening port for all devices that emit the same
+malformed format</li>
+<li>bind the listener to the ruleset with the required parser</li>
+</ul>
+<p>Note that it may be cumbersome to add all rules to all rulesets. To
+avoid this, you can either use $Include or <a class="reference external" href="omruleset.html">omruleset</a>
+(what probably provides the best solution).</p>
+<p>More information about rulesets in general can be found in
+<a class="reference internal" href="../../concepts/multi_ruleset.html"><em>multi-ruleset support in rsyslog</em></a>.</p>
+<p><strong>Caveats:</strong></p>
+<p>currently none known</p>
+<p><strong>Example:</strong></p>
+<p>This example assumes there are two devices emiting malformed messages
+via UDP. We have two custom parsers for them, named &#8220;device1.parser&#8221; and
+&#8220;device2.parser&#8221;. In addition to that, we have a number of other devices
+sending wellformed messages, also via UDP.</p>
+<p>The solution is to listen for data from the two devices on two special
+ports (10514 and 10515 in this example), create a ruleset for each and
+assign the custom parsers to them. The rest of the messages are received
+via port 514 using the regular parsers. Processing shall be equal for
+all messages. So we simply forward the malformed messages to the regular
+queue once they are parsed (keep in mind that a message is never again
+parsed once any parser properly processed it).</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imudp
+$ModLoad pmdevice1 # load parser &quot;device1.parser&quot; for device 1
+$ModLoad pmdevice2 # load parser &quot;device2.parser&quot; for device 2
+
+# define ruleset for the first device sending malformed data
+$Ruleset maldev1
+$RulesetCreateMainQueue on # create ruleset-specific queue
+$RulesetParser &quot;device1.parser&quot; # note: this deactivates the default parsers
+# forward all messages to default ruleset:
+$ActionOmrulesetRulesetName RSYSLOG\_DefaultRuleset
+\*.\* :omruleset:
+
+# define ruleset for the second device sending malformed data
+$Ruleset maldev2 $RulesetCreateMainQueue on # create ruleset-specific queue
+$RulesetParser &quot;device2.parser&quot; # note: this deactivates the default parsers
+# forward all messages to default ruleset:
+$ActionOmrulesetRulesetName RSYSLOG\_DefaultRuleset
+\*.\* :omruleset:
+
+# switch back to default ruleset
+$Ruleset RSYSLOG\_DefaultRuleset
+\*.\* /path/to/file
+auth.info @authlogger.example.net
+# whatever else you usually do...
+
+# now define the inputs and bind them to the rulesets
+# first the default listener (utilizing the default ruleset)
+$UDPServerRun 514
+
+# now the one with the parser for device type 1:
+$InputUDPServerBindRuleset maldev1
+$UDPServerRun 10514
+
+# and finally the one for device type 2:
+$InputUDPServerBindRuleset maldev2
+$UDPServerRun 10515
+</pre></div>
+</div>
+<p>For an example of how multiple parser can be chained (and an actual use
+case), please see the example section on the
+<a class="reference external" href="pmlastmsg.html">pmlastmsg</a> parser module.</p>
+<p>Note the positions of the directives. With the current config language,
+<strong>sequence of statements is very important</strong>. This is ugly, but
+unfortunately the way it currently works.</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.</p>
+<p>Copyright © 2009 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 2 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rsconf1_rulesetcreatemainqueue.html"
+                        title="previous chapter">$RulesetCreateMainQueue</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../modules/index.html"
+                        title="next chapter">Modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/ruleset/rsconf1_rulesetparser.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/ruleset/rsconf1_rulesetparser.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../modules/index.html" title="Modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rsconf1_rulesetcreatemainqueue.html" title="$RulesetCreateMainQueue"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" >Legacy Configuration Directives</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="index.html" >Ruleset-Specific Legacy Configuration Statements</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

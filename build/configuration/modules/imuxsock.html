@@ -1,0 +1,552 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imuxsock: Unix Socket Input &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="Parser Modules" href="idx_parser.html" />
+    <link rel="prev" title="imudp: UDP Syslog Input Module" href="imudp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="idx_parser.html" title="Parser Modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imudp.html" title="imudp: UDP Syslog Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imuxsock-unix-socket-input">
+<h1>imuxsock: Unix Socket Input<a class="headerlink" href="#imuxsock-unix-socket-input" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Module Name:</strong></td>
+<td><strong>imuxsock</strong></td>
+</tr>
+<tr class="row-even"><td><strong>Author:</strong></td>
+<td><a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a> &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Provides the ability to accept syslog messages via local Unix sockets.
+Most importantly, this is the mechanism by which the syslog(3) call
+delivers syslog messages to rsyslogd.</strong> So you need to have this module
+loaded to read the system log socket and be able to process log messages
+from applications running on the local system.</p>
+<p><strong>Application-provided timestamps are ignored by default.</strong> This is
+needed, as some programs (e.g. sshd) log with inconsistent timezone
+information, what messes up the local logs (which by default don&#8217;t even
+contain time zone information). This seems to be consistent with what
+sysklogd did for the past four years. Alternate behaviour may be
+desirable if gateway-like processes send messages via the local log slot
+- in this case, it can be enabled via the IgnoreTimestamp and
+SysSock.IgnoreTimestamp config directives</p>
+<p><strong>There is input rate limiting available,</strong> (since 5.7.1) to guard you
+against the problems of a wild running logging process. If more than
+SysSock.RateLimit.Interval * SysSock.RateLimit.Burst log messages are
+emitted from the same process, those messages with
+SysSock.RateLimit.Severity or lower will be dropped. It is not possible
+to recover anything about these messages, but imuxsock will tell you how
+many it has dropped one the interval has expired AND the next message is
+logged. Rate-limiting depends on SCM_CREDENTIALS. If the platform does
+not support this socket option, rate limiting is turned off. If multiple
+sockets are configured, rate limiting works independently on each of
+them (that should be what you usually expect). The same functionality is
+available for additional log sockets, in which case the config
+statements just use the prefix RateLimit... but otherwise works exactly
+the same. When working with severities, please keep in mind that higher
+severity numbers mean lower severity and configure things accordingly.
+To turn off rate limiting, set the interval to zero.</p>
+<p><strong>Unix log sockets can be flow-controlled.</strong> That is, if processing
+queues fill up, the unix socket reader is blocked for a short while.
+This may be useful to prevent overruning the queues (which may cause
+excessive disk-io where it actually would not be needed). However,
+flow-controlling a log socket (and especially the system log socket) can
+lead to a very unresponsive system. As such, flow control is disabled by
+default. That means any log records are places as quickly as possible
+into the processing queues. If you would like to have flow control, you
+need to enable it via the SysSock.FlowControl and FlowControl config
+directives. Just make sure you thought about the implications. Note that
+for many systems, turning on flow control does not hurt.</p>
+<p>Starting with rsyslog 5.9.4, <a class="reference external" href="http://www.rsyslog.com/what-are-trusted-properties/">trusted syslog
+properties</a> are
+available. These require a recent enough Linux Kernel and access to
+the /proc file system. In other words, this may not work on all
+platforms and may not work fully when privileges are dropped (depending
+on how they are dropped). Note that trusted properties can be very
+useful, but also typically cause the message to grow rather large. Also,
+the format of log messages is obviously changed by adding the trusted
+properties at the end. For these reasons, the feature is <strong>not enabled
+by default</strong>. If you want to use it, you must turn it on (via
+SysSock.Annotate and Annotate).</p>
+<div class="section" id="configuration-parameters">
+<h2>Configuration Parameters<a class="headerlink" href="#configuration-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="global-parameters">
+<h3>Global Parameters<a class="headerlink" href="#global-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>SysSock.IgnoreTimestamp</strong> [<strong>on</strong>/off]
+Ignore timestamps included in the messages, applies to messages
+received via the system log socket.</li>
+<li><strong>SysSock.IgnoreOwnMessages</strong> [<strong>on</strong>/off] (available since 7.3.7)
+Ignores messages that originated from the same instance of rsyslogd.
+There usually is no reason to receive messages from ourselves. This
+setting is vital when writing messages to the Linux journal. See
+<a class="reference external" href="omjournal.html">omjournal</a> module documentation for a more
+in-depth description.</li>
+<li><strong>SysSock.Use</strong> (imuxsock) [<strong>on</strong>/off] - Listen on the local
+log socket. This is most useful if you run multiple instances of
+rsyslogd where only one shall handle the system log socket.</li>
+<li><strong>SysSock.Name</strong> &lt;name-of-socket&gt;</li>
+<li><strong>SysSock.FlowControl</strong> [on/<strong>off</strong>] - specifies if flow control
+should be applied to the system log socket.</li>
+<li><strong>SysSock.UsePIDFromSystem</strong> [on/<strong>off</strong>] - specifies if the pid
+being logged shall be obtained from the log socket itself. If so, the
+TAG part of the message is rewritten. It is recommended to turn this
+option on, but the default is &#8220;off&#8221; to keep compatible with earlier
+versions of rsyslog.</li>
+<li><strong>SysSock.RateLimit.Interval</strong> [number] - specifies the rate-limiting
+interval in seconds. Default value is 0, which turns off rate
+limiting. Set it to a number of seconds (5 recommended) to activate
+rate-limiting. The default of 0 has been chosen as people experienced
+problems with this feature activated by default. Now it needs an
+explicit opt-in by setting this parameter.</li>
+<li><strong>SysSock.RateLimit.Burst</strong> [number] - specifies the rate-limiting
+burst in number of messages. Default is 200.</li>
+<li><strong>SysSock.RateLimit.Severity</strong> [numerical severity] - specifies the
+severity of messages that shall be rate-limited.</li>
+<li><strong>SysSock.UseSysTimeStamp</strong> [<strong>on</strong>/off] the same as the input
+parameter UseSysTimeStamp, but for the system log socket. See
+description there.</li>
+<li><strong>SysSock.Annotate</strong> &lt;on/<strong>off</strong>&gt; turn on annotation/trusted
+properties for the system log socket.</li>
+<li><strong>SysSock.ParseTrusted</strong> &lt;on/<strong>off</strong>&gt; if Annotation is turned on,
+create JSON/lumberjack properties out of the trusted properties
+(which can be accessed via RainerScript JSON Variables, e.g. &#8220;$!pid&#8221;)
+instead of adding them to the message.</li>
+<li><strong>SysSock.Unlink</strong> &lt;<strong>on</strong>/off&gt; (available since 7.3.9)
+if turned on (default), the system socket is unlinked and re-created
+when opened and also unlinked when finally closed. Note that this
+setting has no effect when running under systemd control (because
+systemd handles the socket).</li>
+<li><strong>sysSock.useSpecialParser</strong> (available since 8.9.0)
+The equivalent of the &#8220;useSpecialParser&#8221; input parameter for the
+system socket.</li>
+<li><strong>sysSock.parseHostname</strong> (available since 8.9.0)
+The equivalent of the &#8220;parseHostname&#8221; input parameter for the
+system socket.</li>
+</ul>
+</div>
+<div class="section" id="input-parameters">
+<h3>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>ruleset</strong> [name]
+Binds specified ruleset to this input. If not set, the default
+ruleset is bound. (available since 8.17.0)</li>
+<li><strong>IgnoreTimestamp</strong> [<strong>on</strong>/off]
+Ignore timestamps included in the message. Applies to the next socket
+being added.</li>
+<li><strong>IgnoreOwnMessages</strong> [<strong>on</strong>/off] (available since 7.3.7)
+Ignore messages that originated from the same instance of rsyslogd.
+There usually is no reason to receive messages from ourselfs. This
+setting is vital when writing messages to the Linux journal. See
+<a class="reference external" href="omjournal.html">omjournal</a> module documentation for a more
+in-depth description.</li>
+<li><strong>FlowControl</strong> [on/<strong>off</strong>] - specifies if flow control should be
+applied to the next socket.</li>
+<li><strong>RateLimit.Interval</strong> [number] - specifies the rate-limiting
+interval in seconds. Default value is 0, which turns off rate
+limiting. Set it to a number of seconds (5 recommended) to activate
+rate-limiting. The default of 0 has been chosen as people experienced
+problems with this feature activated by default. Now it needs an
+explicit opt-in by setting this parameter.</li>
+<li><strong>RateLimit.Burst</strong> [number] - specifies the rate-limiting burst in
+number of messages. Default is 200.</li>
+<li><strong>RateLimit.Severity</strong> [numerical severity] - specifies the severity
+of messages that shall be rate-limited.</li>
+<li><strong>UsePIDFromSystem</strong> [on/<strong>off</strong>] - specifies if the pid being logged
+shall be obtained from the log socket itself. If so, the TAG part of
+the message is rewritten. It is recommended to turn this option on,
+but the default is &#8220;off&#8221; to keep compatible with earlier versions of
+rsyslog.</li>
+<li><strong>UseSysTimeStamp</strong> [<strong>on</strong>/off] instructs imuxsock to obtain message
+time from the system (via control messages) instead of using time
+recorded inside the message. This may be most useful in combination
+with systemd. Note: this option was introduced with version 5.9.1.
+Due to the usefulness of it, we decided to enable it by default. As
+such, 5.9.1 and above behave slightly different than previous
+versions. However, we do not see how this could negatively affect
+existing environments.</li>
+<li><strong>CreatePath</strong> [on/<strong>off</strong>] - create directories in the socket path
+if they do not already exist. They are created with 0755 permissions
+with the owner being the process under which rsyslogd runs. The
+default is not to create directories. Keep in mind, though, that
+rsyslogd always creates the socket itself if it does not exist (just
+not the directories by default).
+Note that this statement affects the next Socket directive that
+follows in sequence in the configuration file. It never works on the
+system log socket (where it is deemed unnecessary). Also note that it
+is automatically being reset to &#8220;off&#8221; after the Socket directive, so
+if you would have it active for two additional listen sockets, you
+need to specify it in front of each one. This option is primarily
+considered useful for defining additional sockets that reside on
+non-permanent file systems. As rsyslogd probably starts up before the
+daemons that create these sockets, it is a vehicle to enable rsyslogd
+to listen to those sockets even though their directories do not yet
+exist.</li>
+<li><strong>Socket</strong> &lt;name-of-socket&gt; adds additional unix socket, default none
+&#8211; former -a option</li>
+<li><strong>HostName</strong> &lt;hostname&gt; permits to override the hostname that shall
+be used inside messages taken from the <strong>next</strong> Socket socket. Note
+that the hostname must be specified before the $AddUnixListenSocket
+configuration directive, and it will only affect the next one and
+then automatically be reset. This functionality is provided so that
+the local hostname can be overridden in cases where that is desired.</li>
+<li><strong>Annotate</strong> &lt;on/<strong>off</strong>&gt; turn on annotation/trusted properties for
+the non-system log socket in question.</li>
+<li><strong>ParseTrusted</strong> &lt;on/<strong>off</strong>&gt; equivalent to the SysSock.ParseTrusted
+module parameter, but applies to the input that is being defined.</li>
+<li><strong>Unlink</strong> &lt;<strong>on</strong>/off&gt; (available since 7.3.9)
+if turned on (default), the socket is unlinked and re-created when
+opened and also unlinked when finally closed. Set it to off if you
+handle socket creation yourself. Note that handling socket creation
+oneself has the advantage that a limited amount of messages may be
+queued by the OS if rsyslog is not running.</li>
+<li><strong>useSpecialParser</strong> &lt;<strong>on</strong>/off&gt; (available since 8.9.0)
+If turned on (the default and the way it was up until 8.8.0) a
+special parser is used that parses the format that is usually
+used on the system log socket (the one syslog(3) creates).
+If set to &#8220;off&#8221;, the regular parser chain is used, in which case
+the format on the log socket can be arbitrary.
+Note that when the special parser is used, rsyslog is able to
+inject a more precise timestamp into the message (it is obtained
+from the log socket). If the regular parser chain is used, this
+is not possible.</li>
+<li><strong>parseHostname</strong> &lt;on/<strong>off</strong>&gt; (available since 8.9.0)
+Normally, the local log sockets do <em>not</em> contain hostnames. With
+this directive, the parser chain can be instructed to not
+expect them (setting &#8220;off&#8221;, the default). If set to on, parsers
+will expect hostnames just like in regular formats.
+Note: this option only has an effect if <em>useSpecialParsers</em> is
+set to &#8220;off&#8221;.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.rsyslog.com/what-are-trusted-properties/">What are &#8220;trusted
+properties&#8221;?</a></li>
+<li><a class="reference external" href="http://www.rsyslog.com/why-does-imuxsock-not-work-on-solaris/">Why does imuxsock not work on
+Solaris?</a></li>
+</ul>
+</div>
+<div class="section" id="caveats-known-bugs">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>There is a compile-time limit of 50 concurrent sockets. If you need
+more, you need to change the array size in imuxsock.c.</li>
+<li>This documentation is sparse and incomplete.</li>
+</ul>
+</div>
+<div class="section" id="samples">
+<h2>Samples<a class="headerlink" href="#samples" title="Permalink to this headline">¶</a></h2>
+<p>The following sample is the minimum setup required to accept syslog
+messages from applications running on the local system.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot; # needs to be done just once
+       SysSock.FlowControl=&quot;on&quot;) # enable flow control (use if needed)
+</pre></div>
+</div>
+<p>The following sample is similiar to the first one, but enables trusted
+properties, which are put into JSON/lumberjack variables.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot; SysSock.Annotate=&quot;on&quot; SysSock.ParseTrusted=&quot;on&quot;)
+</pre></div>
+</div>
+<p>The following sample is a configuration where rsyslogd pulls logs from
+two jails, and assigns different hostnames to each of the jails:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot;) # needs to be done just once
+input(type=&quot;imuxsock&quot; HostName=&quot;jail1.example.net&quot;
+      Socket=&quot;/jail/1/dev/log&quot;) input(type=&quot;imuxsock&quot;
+      HostName=&quot;jail2.example.net&quot; Socket=&quot;/jail/2/dev/log&quot;)
+</pre></div>
+</div>
+<p>The following sample is a configuration where rsyslogd reads the openssh
+log messages via a separate socket, but this socket is created on a
+temporary file system. As rsyslogd starts up before the sshd, it needs
+to create the socket directories, because it otherwise can not open the
+socket and thus not listen to openssh messages. Note that it is vital
+not to place any other socket between the CreatePath and the Socket.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot;) # needs to be done just once
+input(type=&quot;imuxsock&quot; Socket=&quot;/var/run/sshd/dev/log&quot; CreatePath=&quot;on&quot;)
+</pre></div>
+</div>
+<p>The following sample is used to turn off input rate limiting on the
+system log socket.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot; # needs to be done just once
+       SysSock.RateLimit.Interval=&quot;0&quot;) # turn off rate limiting
+</pre></div>
+</div>
+<p>The following sample is used activate message annotation and thus
+trusted properties on the system log socket. module(load=&#8221;imuxsock&#8221; #
+needs to be done just once SysSock.Annotate=&#8221;on&#8221;)</p>
+</div>
+<div class="section" id="legacy-configuration-directives">
+<h2>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h2>
+<p><strong>Legacy directives should NOT be used when writing new configuration files.</strong></p>
+<p>Note that the legacy configuration parameters do <strong>not</strong> affect
+new-style definitions via the input() object. This is
+by design. To set defaults for input() objects, use module parameters
+in the</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imuxsock&quot; ...)
+</pre></div>
+</div>
+<p>object.</p>
+<p>Read about <a class="reference internal" href="../actions.html#legacy-action-order"><span>the importance of order in legacy configuration</span></a>
+to understand how to use these configuration directives.</p>
+<ul>
+<li><p class="first"><strong>$InputUnixListenSocketIgnoreMsgTimestamp</strong> [<strong>on</strong>/off]
+equivalent to: IgnoreTimestamp.</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketFlowControl</strong> [on/<strong>off</strong>] - equivalent to:
+FlowControl .</p>
+</li>
+<li><p class="first"><strong>$IMUXSockRateLimitInterval</strong> [number] - equivalent to:
+RateLimit.Interval</p>
+</li>
+<li><p class="first"><strong>$IMUXSockRateLimitBurst</strong> [number] - equivalent to: RateLimit.Burst</p>
+</li>
+<li><p class="first"><strong>$IMUXSockRateLimitSeverity</strong> [numerical severity] - equivalent to:
+RateLimit.Severity</p>
+</li>
+<li><p class="first"><strong>$IMUXSockLocalIPIF</strong> [interface name] - (available since 5.9.6) -
+if provided, the IP of the specified interface (e.g. &#8220;eth0&#8221;) shall be
+used as fromhost-ip for imuxsock-originating messages. If this
+directive is not given OR the interface cannot be found (or has no IP
+address), the default of &#8220;127.0.0.1&#8221; is used.</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketUsePIDFromSystem</strong> [on/<strong>off</strong>] - equivalent
+to: UsePIDFromSystem.
+This option was introduced in 5.7.0.</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketUseSysTimeStamp</strong> [<strong>on</strong>/off] equivalent to:
+UseSysTimeStamp .</p>
+</li>
+<li><dl class="first docutils">
+<dt><strong>$SystemLogSocketIgnoreMsgTimestamp</strong> [<strong>on</strong>/off]</dt>
+<dd><p class="first last">equivalent to: SysSock.IgnoreTimestamp.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><strong>$OmitLocalLogging</strong> (imuxsock) [on/<strong>off</strong>] - The <strong>inverse</strong> of
+SysSock.Use.</p>
+</li>
+<li><p class="first"><strong>$SystemLogSocketName</strong> &lt;name-of-socket&gt; equivalent to: SysSock.Name</p>
+</li>
+<li><p class="first"><strong>$SystemLogFlowControl</strong> [on/<strong>off</strong>] - equivalent to:
+SysSock.FlowControl.</p>
+</li>
+<li><p class="first"><strong>$SystemLogUsePIDFromSystem</strong> [on/<strong>off</strong>] - equivalent to:
+SysSock.UsePIDFromSystem.
+This option was introduced in 5.7.0.</p>
+</li>
+<li><p class="first"><strong>$SystemLogRateLimitInterval</strong> [number] - equivalent to:
+SysSock.RateLimit.Interval.</p>
+</li>
+<li><p class="first"><strong>$SystemLogRateLimitBurst</strong> [number] - equivalent to:
+SysSock.RateLimit.Burst</p>
+</li>
+<li><p class="first"><strong>$SystemLogRateLimitSeverity</strong> [numerical severity] - equivalent to:
+SysSock.RateLimit.Severity</p>
+</li>
+<li><p class="first"><strong>$SystemLogUseSysTimeStamp</strong> [<strong>on</strong>/off] equivalent to:
+SysSock.UseSysTimeStamp.</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketCreatePath</strong> [on/<strong>off</strong>] - equivalent to:
+CreatePath
+[available since 4.7.0 and 5.3.0]</p>
+</li>
+<li><p class="first"><strong>$AddUnixListenSocket</strong> &lt;name-of-socket&gt; equivalent to: Socket</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketHostName</strong> &lt;hostname&gt; equivalent to:
+HostName.</p>
+</li>
+<li><p class="first"><strong>$InputUnixListenSocketAnnotate</strong> &lt;on/<strong>off</strong>&gt; equivalent to:
+Annotate.</p>
+</li>
+<li><p class="first"><strong>$SystemLogSocketAnnotate</strong> &lt;on/<strong>off</strong>&gt; equivalent to:
+SysSock.Annotate.</p>
+</li>
+<li><p class="first"><strong>$SystemLogSocketParseTrusted</strong> &lt;on/<strong>off</strong>&gt; equivalent to:
+SysSock.ParseTrusted.</p>
+</li>
+</ul>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<ul class="simple">
+<li>There is a compile-time limit of 50 concurrent sockets. If you need
+more, you need to change the array size in imuxsock.c.</li>
+<li>This documentation is sparse and incomplete.</li>
+</ul>
+<p><strong>Sample:</strong></p>
+<p>The following sample is the minimum setup required to accept syslog
+messages from applications running on the local system.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imuxsock # needs to be done just once
+$SystemLogSocketFlowControl on # enable flow control (use if needed)
+</pre></div>
+</div>
+<p>The following sample is a configuration where rsyslogd pulls logs from
+two jails, and assigns different hostnames to each of the jails:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imuxsock # needs to be done just once
+$InputUnixListenSocketHostName jail1.example.net
+$AddUnixListenSocket /jail/1/dev/log
+$InputUnixListenSocketHostName jail2.example.net
+$AddUnixListenSocket /jail/2/dev/log
+</pre></div>
+</div>
+<p>The following sample is a configuration where rsyslogd reads the openssh
+log messages via a separate socket, but this socket is created on a
+temporary file system. As rsyslogd starts up before the sshd, it needs
+to create the socket directories, because it otherwise can not open the
+socket and thus not listen to openssh messages. Note that it is vital
+not to place any other socket between the
+$InputUnixListenSocketCreatePath and the $InputUnixListenSocketHostName.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imuxsock # needs to be done just once
+$InputUnixListenSocketCreatePath on # turn on for *next* socket
+$InputUnixListenSocket /var/run/sshd/dev/log
+</pre></div>
+</div>
+<p>The following sample is used to turn off input rate limiting on the
+system log socket.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imuxsock # needs to be done just once
+$SystemLogRateLimitInterval 0 # turn off rate limiting
+</pre></div>
+</div>
+<p>The following sample is used to activate message annotation and thus
+trusted properties on the system log socket.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imuxsock # needs to be done just once
+$SystemLogSocketAnnotate on
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+3 or higher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imuxsock: Unix Socket Input</a><ul>
+<li><a class="reference internal" href="#configuration-parameters">Configuration Parameters</a><ul>
+<li><a class="reference internal" href="#global-parameters">Global Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#samples">Samples</a></li>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imudp.html"
+                        title="previous chapter">imudp: UDP Syslog Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="idx_parser.html"
+                        title="next chapter">Parser Modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imuxsock.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imuxsock.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="idx_parser.html" title="Parser Modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imudp.html" title="imudp: UDP Syslog Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

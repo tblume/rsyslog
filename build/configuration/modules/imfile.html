@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imfile: Text File Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imgssapi: GSSAPI Syslog Input Module" href="imgssapi.html" />
+    <link rel="prev" title="im3195: RFC3195 Input Module" href="im3195.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imgssapi.html" title="imgssapi: GSSAPI Syslog Input Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="im3195.html" title="im3195: RFC3195 Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imfile-text-file-input-module">
+<h1>imfile: Text File Input Module<a class="headerlink" href="#imfile-text-file-input-module" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils" id="index-0">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Module Name:</strong></td>
+<td><strong>imfile</strong></td>
+</tr>
+<tr class="row-even"><td><strong>Author:</strong></td>
+<td><a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a> &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</td>
+</tr>
+</tbody>
+</table>
+<p>This module provides the ability to convert any standard text file
+into a syslog
+message. A standard text file is a file consisting of printable
+characters with lines being delimited by LF.</p>
+<p>The file is read line-by-line and any line read is passed to rsyslog&#8217;s
+rule engine. The rule engine applies filter conditions and selects which
+actions needs to be carried out. Empty lines are <strong>not</strong> processed, as
+they would result in empty syslog records. They are simply ignored.</p>
+<p>As new lines are written they are taken from the file and processed.
+Depending on the selected mode, this happens via inotify or based on
+a polling interval. Especially in polling mode, file reading doesn&#8217;t
+happen immediately. But there are also slight delays (due to process
+scheduling and internal processing) in inotify mode.</p>
+<p>The file monitor supports file rotation. To fully work,
+rsyslogd must run while the file is rotated. Then, any remaining lines
+from the old file are read and processed and when done with that, the
+new file is being processed from the beginning. If rsyslogd is stopped
+during rotation, the new file is read, but any not-yet-reported lines
+from the previous file can no longer be obtained.</p>
+<p>When rsyslogd is stopped while monitoring a text file, it records the
+last processed location and continues to work from there upon restart.
+So no data is lost during a restart (except, as noted above, if the file
+is rotated just in this very moment).</p>
+<div class="section" id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>presentation on <a class="reference external" href="http://www.slideshare.net/rainergerhards1/using-wildcards-with-rsyslogs-file-monitor-imfile">using wildcards with imfile</a></li>
+</ul>
+</div>
+<div class="section" id="metadata">
+<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h2>
+<p>The imfile module supports message metadata. It supports the following
+data items</p>
+<ul>
+<li><p class="first">filename</p>
+<p>Name of the file where the message originated from. This is most
+useful when using wildcards inside file monitors, because it then
+is the only way to know which file the message originated from.
+The value can be accessed using the %$!metadata!filename% property.</p>
+</li>
+</ul>
+<p>Metadata is only present if enabled. By default it is enabled for
+input() statements that contain wildcards. For all others, it is
+disabled by default. It can explicitly be turned on or off via the
+<em>addMetadata</em> input() parameter, which always overrides the default.</p>
+</div>
+<div class="section" id="state-files">
+<h2>State Files<a class="headerlink" href="#state-files" title="Permalink to this headline">¶</a></h2>
+<p>Rsyslog must keep track of which parts of the monitored file
+are already processed. This is done in so-called &#8220;state files&#8221;.
+These files are always created in the rsyslog working directory
+(configurable via $WorkDirectory).</p>
+<p>To avoid problems with duplicate state files, rsyslog automatically
+generates state file names according to the following scheme:</p>
+<ul class="simple">
+<li>the string &#8220;imfile-state:&#8221; is added before the actual file name,
+which includes the full path</li>
+<li>the full name is prepended after that string, but all occurrences
+of &#8220;/&#8221; are replaced by &#8220;-&#8221; to facilitate handling of these files</li>
+</ul>
+<p>As a concrete example, consider file <code class="docutils literal"><span class="pre">/var/log/applog</span></code> is
+being monitored. The corresponding state file will be named
+<code class="docutils literal"><span class="pre">imfile-state:-var-log-applog</span></code>.</p>
+<p>Note that it is possible to set a fixed state file name via the
+deprecated &#8220;stateFile&#8221; parameter. It is suggested to avoid this, as
+the user must take care of name clashes. Most importantly, if
+&#8220;stateFile&#8221; is set for file monitors with wildcards, the <strong>same</strong>
+state file is used for all occurrences of these files. In short,
+this will usually not work and cause confusion. Upon startup,
+rsyslog tries to detect these cases and emit warning messages.
+However, the detection simply checks for the presence of &#8220;*&#8221;
+and as such it will not cover more complex cases.</p>
+<p>Note that when $WorkDirectory is not set or
+set to a non-writable location, the state file <strong>will not be generated</strong>.
+In those cases, the file content will always be completely re-sent by
+imfile, because the module does not know that it already processed
+parts of that file.</p>
+<div class="section" id="module-parameters">
+<h3>Module Parameters<a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="index-1"></span><dl class="function">
+<dt>
+<code class="descname">mode [&quot;inotify&quot;/&quot;polling&quot;]</code></dt>
+<dd><blockquote>
+<div><p><em>Default: &#8220;inotify&#8221;</em></p>
+<p><em>Available since: 8.1.5</em></p>
+</div></blockquote>
+<p>This specifies if imfile is shall run in inotify (&#8220;inotify&#8221;) or polling
+(&#8220;polling&#8221;) mode. Traditionally, imfile used polling mode, which is
+much more resource-intense (and slower) than inotify mode. It is
+suggested that users turn on &#8220;polling&#8221; mode only if they experience
+strange problems in inotify mode. In theory, there should never be a
+reason to enable &#8220;polling&#8221; mode and later versions will most probably
+remove it.</p>
+</dd></dl>
+
+<span class="target" id="index-2"></span><dl class="function">
+<dt>
+<code class="descname">readTimeout [seconds]</code></dt>
+<dd><blockquote>
+<div><p><em>Default: 0 (no timeout)</em></p>
+<p><em>Available since: 8.23.0</em></p>
+</div></blockquote>
+<p>This sets the default value for input <em>timeout</em> parameters. See there
+for exact meaning.</p>
+</dd></dl>
+
+<span class="target" id="index-3"></span><dl class="function">
+<dt>
+<code class="descname">timeoutGranularity [seconds]</code></dt>
+<dd><blockquote>
+<div><p><em>Default: 0 (no timeout)</em></p>
+<p><em>Available since: 8.23.0</em></p>
+</div></blockquote>
+<p>This sets the interval in which multi-line-read timeouts are checked. Note that
+this establishes a lower limit on the length of the timeout. For example, if
+a timeoutGranularity of 60 seconds is selected and a readTimeout value of 10 seconds
+is used, the timeout is nevertheless only checked every 60 seconds (if there is
+no other activity in imfile). This means that the readTimeout is also only
+checked every 60 seconds, which in turn means a timeout can occur only after 60
+seconds.</p>
+<p>Note that timeGranularity has some performance implication. The more frequently
+timeout processing is triggerred, the more processing time is needed. This
+effect should be neglectible, except if a very large number of files is being
+monitored.</p>
+</dd></dl>
+
+<span class="target" id="index-4"></span><dl class="function">
+<dt>
+<code class="descname">PollingInterval seconds</code></dt>
+<dd><p><em>Default: 10</em></p>
+<p>This setting specifies how often files are to be
+polled for new data. For obvious reasons, it has effect only if
+imfile is running in polling mode.
+The time specified is in seconds. During each
+polling interval, all files are processed in a round-robin fashion.</p>
+<p>A short poll interval provides more rapid message forwarding, but
+requires more system resources. While it is possible, we stongly
+recommend not to set the polling interval to 0 seconds. That will
+make rsyslogd become a CPU hog, taking up considerable resources. It
+is supported, however, for the few very unusual situations where this
+level may be needed. Even if you need quick response, 1 seconds
+should be well enough. Please note that imfile keeps reading files as
+long as there is any data in them. So a &#8220;polling sleep&#8221; will only
+happen when nothing is left to be processed.</p>
+<p><strong>We recommend to use inotify mode.</strong></p>
+</dd></dl>
+
+</div>
+<div class="section" id="input-parameters">
+<h3>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="index-5"></span><dl class="function">
+<dt>
+<code class="descname">File&nbsp;[/path/to/file]</code></dt>
+<dd><p><strong>(Required Parameter)</strong>
+The file being monitored. So far, this must be an absolute name (no
+macros or templates). Note that wildcards are supported at the file
+name level (see &#8220;Wildcards&#8221; above for more details).</p>
+</dd></dl>
+
+<span class="target" id="index-6"></span><dl class="function">
+<dt>
+<code class="descname">Tag [tag:]</code></dt>
+<dd><p><strong>(Required Parameter)</strong>
+The tag to be used for messages that originate from this file. If
+you would like to see the colon after the tag, you need to specify it
+here (like &#8216;tag=&#8221;myTagValue:&#8221;&#8217;).</p>
+</dd></dl>
+
+<span class="target" id="index-7"></span><dl class="function">
+<dt>
+<code class="descname">Facility [facility]</code></dt>
+<dd><p>The syslog facility to be assigned to lines read. Can be specified
+in textual form (e.g. &#8220;local0&#8221;, &#8220;local1&#8221;, ...) or as numbers (e.g.
+128 for &#8220;local0&#8221;). Textual form is suggested. Default &nbsp;is &#8220;local0&#8221;.</p>
+</dd></dl>
+
+<span class="target" id="index-8"></span><dl class="function">
+<dt>
+<code class="descname">Severity [syslogSeverity]</code></dt>
+<dd><p>The syslog severity to be assigned to lines read. Can be specified
+in textual form (e.g. &#8220;info&#8221;, &#8220;warning&#8221;, ...) or as numbers (e.g. 4
+for &#8220;info&#8221;). Textual form is suggested. Default is &#8220;notice&#8221;.</p>
+</dd></dl>
+
+<span class="target" id="index-9"></span><dl class="function">
+<dt>
+<code class="descname">PersistStateInterval [lines]</code></dt>
+<dd><p>Specifies how often the state file shall be written when processing
+the input file. The <strong>default</strong> value is 0, which means a new state
+file is only written when the monitored files is being closed (end of
+rsyslogd execution). Any other value n means that the state file is
+written every time n file lines have been processed. This setting can
+be used to guard against message duplication due to fatal errors
+(like power fail). Note that this setting affects imfile performance,
+especially when set to a low value. Frequently writing the state file
+is very time consuming.</p>
+</dd></dl>
+
+<span class="target" id="index-10"></span><dl class="function">
+<dt>
+<code class="descname">startmsg.regex [POSIX ERE regex]</code></dt>
+<dd><p>This permits the processing of multi-line messages. When set, a
+messages is terminated when the next one begins, and
+<code class="docutils literal"><span class="pre">startmsg.regex</span></code> contains the regex that identifies the start
+of a message. As this parameter is using regular expressions, it
+is more flexible than <code class="docutils literal"><span class="pre">readMode</span></code> but at the cost of lower
+performance.
+Note that <code class="docutils literal"><span class="pre">readMode</span></code> and <code class="docutils literal"><span class="pre">startmsg.regex</span></code> cannot both be
+defined for the same input.</p>
+<p>This parameter is available since rsyslog v8.10.0.</p>
+</dd></dl>
+
+<span class="target" id="index-11"></span><dl class="function">
+<dt>
+<code class="descname">readTimeout [seconds]</code></dt>
+<dd><blockquote>
+<div><p><em>Default: 0 (no timeout)</em></p>
+<p><em>Available since: 8.23.0</em></p>
+</div></blockquote>
+<p>This can be used with <em>startmsg.regex</em> (but not <em>readMode</em>). If specified,
+partial multi-line reads are timed out after the specified timeout interval.
+That means the current message fragment is being processed and the next
+message fragment arriving is treated as a completely new message. The
+typical use case for this parameter is a file that is infrequently being
+written. In such cases, the next message arrives relatively late, maybe hours
+later. Specifying a readTimeout will ensure that those &#8220;last messages&#8221; are
+emitted in a timely manner. In this use case, the &#8220;partial&#8221; messages being
+processed are actually full messages, so everything is fully correct.</p>
+<p>To guard against accidential too-early emission of a (partial) message, the
+timeout should be sufficiently large (5 to 10 seconds or more recommended).
+Specifying a value of zero turns off timeout processing. Also note the
+relationship to the <em>timeoutGranularity</em> global parameter, which sets the
+lower bound of <em>readTimeout</em>.</p>
+<p>Setting timeout vaues slightly increases processing time requirements; the
+effect should only be visible of a very large number of files is being
+monitored.</p>
+</dd></dl>
+
+<span class="target" id="index-12"></span><dl class="function">
+<dt>
+<code class="descname">readMode [mode]</code></dt>
+<dd><p>This provides support for processing some standard types of multiline
+messages. It is less flexible than <code class="docutils literal"><span class="pre">startmsg.regex</span></code> but offers higher
+performance than regex processing. Note that <code class="docutils literal"><span class="pre">readMode</span></code> and
+<code class="docutils literal"><span class="pre">startmsg.regex</span></code> cannot both be defined for the same input.</p>
+<p>The value can range from 0-2 and determines the multiline
+detection method.</p>
+<p>0 - (<strong>default</strong>) line based (each line is a new message)</p>
+<p>1 - paragraph (There is a blank line between log messages)</p>
+<p>2 - indented (new log messages start at the beginning of a line. If a
+line starts with a space or tab &#8220;t&#8221; it is part of the log message before it)</p>
+</dd></dl>
+
+<span class="target" id="index-13"></span><dl class="function">
+<dt>
+<code class="descname">escapeLF [on/off] (requires v7.5.3+)</code></dt>
+<dd><p>This is only meaningful if multi-line messages are to be processed.
+LF characters embedded into syslog messages cause a lot of trouble,
+as most tools and even the legacy syslog TCP protocol do not expect
+these. If set to &#8220;on&#8221;, this option avoid this trouble by properly
+escaping LF characters to the 4-byte sequence &#8220;#012&#8221;. This is
+consistent with other rsyslog control character escaping. By default,
+escaping is turned on. If you turn it off, make sure you test very
+carefully with all associated tools. Please note that if you intend
+to use plain TCP syslog with embedded LF characters, you need to
+enable octet-counted framing.
+For more details, see Rainer&#8217;s blog posting on imfile LF escaping.</p>
+</dd></dl>
+
+<span class="target" id="index-14"></span><dl class="function">
+<dt>
+<code class="descname">MaxLinesAtOnce [number]</code></dt>
+<dd><p>This is a legacy setting that only is supported in <em>polling</em> mode.
+In <em>inotify</em> mode, it is fixed at 0 and all attempts to configure
+a different value will be ignored, but will generate an error
+message.</p>
+<p>Please note that future versions of imfile may not support this
+parameter at all. So it is suggested to not use it.</p>
+<p>In <em>polling</em> mode, if set to 0, each file will be fully processed and
+then processing switches to the next file. If it is set to any other
+value, a maximum of [number] lines is processed in sequence for each file,
+and then the file is switched. This provides a kind of mutiplexing
+the load of multiple files and probably leads to a more natural
+distribution of events when multiple busy files are monitored. For
+<em>polling</em> mode, the <strong>default</strong> is 10240.</p>
+</dd></dl>
+
+<span class="target" id="index-15"></span><dl class="function">
+<dt>
+<code class="descname">MaxSubmitAtOnce [number]</code></dt>
+<dd><p>This is an expert option. It can be used to set the maximum input
+batch size that imfile can generate. The <strong>default</strong> is 1024, which
+is suitable for a wide range of applications. Be sure to understand
+rsyslog message batch processing before you modify this option. If
+you do not know what this doc here talks about, this is a good
+indication that you should NOT modify the default.</p>
+</dd></dl>
+
+<span class="target" id="index-16"></span><dl class="function">
+<dt>
+<code class="descname">deleteStateOnFileDelete [on/off] (requires v8.5.0+)</code></dt>
+<dd><p><strong>Default: on</strong></p>
+<p>This parameter controls if state files are deleted if their associated
+main file is deleted. Usually, this is a good idea, because otherwise
+problems would occur if a new file with the same name is created. In
+that case, imfile would pick up reading from the last position in
+the <strong>deleted</strong> file, which usually is not what you want.</p>
+<p>However, there is one situation where not deleting associated state
+file makes sense: this is the case if a monitored file is modified
+with an editor (like vi or gedit). Most editors write out modifications
+by deleting the old file and creating a new now. If the state file
+would be deleted in that case, all of the file would be reprocessed,
+something that&#8217;s probably not intended in most case. As a side-note,
+it is strongly suggested <em>not</em> to modify monitored files with
+editors. In any case, in such a situation, it makes sense to
+disable state file deletion. That also applies to similar use
+cases.</p>
+<p>In general, this parameter should only by set if the users
+knows exactly why this is required.</p>
+</dd></dl>
+
+<span class="target" id="index-17"></span><dl class="function">
+<dt>
+<code class="descname">Ruleset &lt;ruleset&gt;</code></dt>
+<dd><p>Binds the listener to a specific <a class="reference internal" href="../../concepts/multi_ruleset.html"><em>ruleset</em></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">addMetadata [on/off]</code></dt>
+<dd><p><strong>Default: see intro section on Metadata</strong></p>
+<p>This is used to turn on or off the addition of metadata to the
+message object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">stateFile [name-of-state-file]</code></dt>
+<dd><p><strong>Default: unset</strong></p>
+<p><strong>This paramater is deprecated.</strong> It still is accepted, but should
+no longer be used for newly created configurations.</p>
+<p>This is the name of this file&#8217;s state file. This parameter should
+usually <strong>not</strong> be used. Check the section on &#8220;State Files&#8221; above
+for more details.</p>
+</dd></dl>
+
+<span class="target" id="index-18"></span><dl class="function">
+<dt>
+<code class="descname">reopenOnTruncate [on/off] (requires v8.16.0+)</code></dt>
+<dd><p><strong>Default: off</strong></p>
+<p>This is an <strong>experimental</strong> feature that tells rsyslog to reopen input file
+when it was truncated (inode unchanged but file size on disk is less than
+current offset in memory).</p>
+</dd></dl>
+
+<span class="target" id="index-19"></span><dl class="function">
+<dt>
+<code class="descname">trimLineOverBytes [number] (requires v8.17.0+)</code></dt>
+<dd><p><strong>Default: 0</strong></p>
+<p>This is used to tell rsyslog to truncate the line which length is greater
+than specified bytes. If it is positive number, rsyslog truncate the line
+at specified bytes. Default value of &#8216;trimLineOverBytes&#8217; is 0, means never
+truncate line.</p>
+<p>This option can be used when <code class="docutils literal"><span class="pre">readMode</span></code> is 0 or 2.</p>
+</dd></dl>
+
+<span class="target" id="index-20"></span><dl class="function">
+<dt>
+<code class="descname">freshStartTail [on/off] (requires v8.18.0+)</code></dt>
+<dd><p><strong>Default: off</strong></p>
+<p>This is used to tell rsyslog to seek to the end/tail of input files
+(discard old logs)**at its first start(freshStart)** and process only new
+log messages.</p>
+<p>When deploy rsyslog to a large number of servers, we may only care about
+new log messages generated after the deployment. set <strong>freshstartTail</strong>
+to <strong>on</strong> will discard old logs. Otherwise, there may be vast useless
+message burst on the remote central log receiver</p>
+</dd></dl>
+
+</div>
+<div class="section" id="caveats-known-bugs">
+<h3>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>currently, wildcards are only supported in inotify mode</li>
+<li>read modes other than &#8220;0&#8221; currently seem to have issues in
+inotify mode</li>
+</ul>
+</div>
+<div class="section" id="configuration-example">
+<h3>Configuration Example<a class="headerlink" href="#configuration-example" title="Permalink to this headline">¶</a></h3>
+<p>The following sample monitors two files. If you need just one, remove
+the second one. If you need more, add them according to the sample ;).
+This code must be placed in /etc/rsyslog.conf (or wherever your distro
+puts rsyslog&#8217;s config files). Note that only commands actually needed
+need to be specified. The second file uses less commands and uses
+defaults instead.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imfile&quot; PollingInterval=&quot;10&quot;) #needs to be done just once
+
+# File 1
+input(type=&quot;imfile&quot;
+      File=&quot;/path/to/file1&quot;
+      Tag=&quot;tag1&quot;
+      Severity=&quot;error&quot;
+      Facility=&quot;local7&quot;)
+
+# File 2
+input(type=&quot;imfile&quot;
+      File=&quot;/path/to/file2&quot;
+      Tag=&quot;tag2&quot;)
+
+# ... and so on ... #
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-configuration">
+<h3>Legacy Configuration<a class="headerlink" href="#legacy-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Note: in order to preserve compatibility with previous versions, the LF escaping
+in multi-line messages is turned off for legacy-configured file monitors
+(the &#8220;escapeLF&#8221; input parameter). This can cause serious problems. So it is highly
+suggested that new deployments use the new <a class="reference internal" href="../timezone.html#cfgobj-input"><span>input()</span></a> configuration
+object and keep LF escaping turned on.</p>
+<div class="section" id="legacy-configuration-directives">
+<h4>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h4>
+<span class="target" id="index-21"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileName /path/to/file</code></dt>
+<dd><p>equivalent to &#8220;file&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-22"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileTag tag:</code></dt>
+<dd><p>equivalent to: &#8220;tag&#8221;
+you would like to see the colon after the tag, you need to specify it
+here (as shown above).</p>
+</dd></dl>
+
+<span class="target" id="index-23"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileStateFile name-of-state-file</code></dt>
+<dd><p>equivalent to: &#8220;StateFile&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-24"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileFacility facility</code></dt>
+<dd><p>equivalent to: &#8220;Facility&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-25"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileSeverity severity</code></dt>
+<dd><p>equivalent to: &#8220;Severity&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-26"></span><dl class="function">
+<dt>
+<code class="descname">$InputRunFileMonitor</code></dt>
+<dd><p>This <strong>activates</strong> the current monitor. It has no parameters. If you
+forget this directive, no file monitoring will take place.</p>
+</dd></dl>
+
+<span class="target" id="index-27"></span><dl class="function">
+<dt>
+<code class="descname">$InputFilePollInterval seconds</code></dt>
+<dd><p>equivalent to: &#8220;PollingInterval&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-28"></span><dl class="function">
+<dt>
+<code class="descname">$InputFilePersistStateInterval lines</code></dt>
+<dd><p>equivalent to: &#8220;PersistStateInterval&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-29"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileReadMode mode</code></dt>
+<dd><p>equivalent to: &#8220;ReadMode&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-30"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileMaxLinesAtOnce number</code></dt>
+<dd><p>equivalent to: &#8220;MaxLinesAtOnce&#8221;</p>
+</dd></dl>
+
+<span class="target" id="index-31"></span><dl class="function">
+<dt>
+<code class="descname">$InputFileBindRuleset ruleset</code></dt>
+<dd><p>Equivalent to: Ruleset</p>
+</dd></dl>
+
+</div>
+<div class="section" id="legacy-example">
+<h4>Legacy Example<a class="headerlink" href="#legacy-example" title="Permalink to this headline">¶</a></h4>
+<p>The following sample monitors two files. If you need just one, remove
+the second one. If you need more, add them according to the sample ;).
+Note that only non-default parameters actually needed
+need to be specified. The second file uses less directives and uses
+defaults instead.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imfile # needs to be done just once
+# File 1
+$InputFileName /path/to/file1
+$InputFileTag tag1:
+$InputFileStateFile stat-file1
+
+$InputFileSeverity error
+$InputFileFacility local7
+$InputRunFileMonitor
+
+# File 2
+$InputFileName /path/to/file2
+$InputFileTag tag2:
+
+$InputFileStateFile stat-file2
+$InputRunFileMonitor
+# ... and so on ...
+# check for new lines every 10 seconds
+$InputFilePollInterval 10
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imfile: Text File Input Module</a><ul>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+<li><a class="reference internal" href="#metadata">Metadata</a></li>
+<li><a class="reference internal" href="#state-files">State Files</a><ul>
+<li><a class="reference internal" href="#module-parameters">Module Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#configuration-example">Configuration Example</a></li>
+<li><a class="reference internal" href="#legacy-configuration">Legacy Configuration</a><ul>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a></li>
+<li><a class="reference internal" href="#legacy-example">Legacy Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="im3195.html"
+                        title="previous chapter">im3195: RFC3195 Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imgssapi.html"
+                        title="next chapter">imgssapi: GSSAPI Syslog Input Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imfile.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imfile.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imgssapi.html" title="imgssapi: GSSAPI Syslog Input Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="im3195.html" title="im3195: RFC3195 Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

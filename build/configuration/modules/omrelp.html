@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>omrelp: RELP Output Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Output Modules" href="idx_output.html" />
+    <link rel="next" title="omruleset: ruleset output/including module" href="omruleset.html" />
+    <link rel="prev" title="omprog: Program integration Output module" href="omprog.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="omruleset.html" title="omruleset: ruleset output/including module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="omprog.html" title="omprog: Program integration Output module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" accesskey="U">Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="omrelp-relp-output-module">
+<h1>omrelp: RELP Output Module<a class="headerlink" href="#omrelp-relp-output-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; omrelp</strong></p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Description</strong>:</p>
+<p>This module supports sending syslog messages over the reliable RELP
+protocol. For RELP&#8217;s advantages over plain tcp syslog, please see the
+documentation for <a class="reference internal" href="imrelp.html"><em>imrelp</em></a> (the server counterpart).</p>
+<p>Setup</p>
+<p>Please note that <a class="reference external" href="http://www.librelp.com">librelp</a> is required for
+imrelp (it provides the core relp protocol implementation).</p>
+<p><strong>Action Configuration Parameters</strong>:</p>
+<p>This module supports RainerScript configuration starting with rsyslog
+7.3.10. For older versions, legacy configuration directives must be
+used.</p>
+<ul>
+<li><p class="first"><strong>target</strong> (mandatory)
+The target server to connect to.</p>
+</li>
+<li><p class="first"><strong>template</strong> (not mandatory, default &#8220;RSYSLOG_ForwardFormat&#8221;)
+Defines the template to be used for the output.</p>
+</li>
+<li><p class="first"><strong>timeout</strong> (not mandatory, default 90)
+Timeout for relp sessions. If set too low, valid sessions may be
+considered dead and tried to recover.</p>
+</li>
+<li><p class="first"><strong>conn.timeout</strong> (not mandatory, default 10)
+Timeout for the socket connection.</p>
+</li>
+<li><p class="first"><strong>windowSize</strong> (not mandatory, default 0)
+This is an <strong>expert parameter</strong>. It permits to override the RELP
+window size being used by the client. Changing the window size has
+both an effect on performance as well as potential message
+duplication in failure case. A larger window size means more
+performance, but also potentially more duplicated messages - and vice
+versa. The default 0 means that librelp&#8217;s default window size is
+being used, which is considered a compromise between goals reached.
+For your information: at the time of this writing, the librelp
+default window size is 128 messages, but this may change at any time.
+Note that there is no equivalent server parameter, as the client
+proposes and manages the window size in RELP protocol.</p>
+</li>
+<li><p class="first"><strong>tls</strong> (not mandatory, values &#8220;on&#8221;,&#8221;off&#8221;, default &#8220;off&#8221;)
+If set to &#8220;on&#8221;, the RELP connection will be encrypted by TLS, so
+that the data is protected against observers. Please note that both
+the client and the server must have set TLS to either &#8220;on&#8221; or &#8220;off&#8221;.
+Other combinations lead to unpredictable results.</p>
+<p><em>Attention when using GnuTLS 2.10.x or older</em></p>
+<p>Versions older than GnuTLS 2.10.x may cause a crash (Segfault) under
+certain circumstances. Most likely when an imrelp inputs and an
+omrelp output is configured. The crash may happen when you are
+receiving/sending messages at the same time. Upgrade to a newer
+version like GnuTLS 2.12.21 to solve the problem.</p>
+</li>
+<li><p class="first"><strong>tls.compression</strong> (not mandatory, values &#8220;on&#8221;,&#8221;off&#8221;, default &#8220;off&#8221;)
+The controls if the TLS stream should be compressed (zipped). While
+this increases CPU use, the network bandwidth should be reduced. Note
+that typical text-based log records usually compress rather well.</p>
+</li>
+<li><p class="first"><strong>tls.permittedPeer</strong> peer Places access restrictions on this
+forwarder. Only peers which have been listed in this parameter may be
+connected to. This guards against rouge servers and man-in-the-middle
+attacks. The validation bases on the certficate the remote peer
+presents.</p>
+<p>The <em>peer</em> parameter lists permitted certificate fingerprints. Note
+that it is an array parameter, so either a single or multiple
+fingerprints can be listed. When a non-permitted peer is connected
+to, the refusal is logged together with it&#8217;s fingerprint. So if the
+administrator knows this was a valid request, he can simple add the
+fingerprint by copy and paste from the logfile to rsyslog.conf. It
+must be noted, though, that this situation should usually not happen
+after initial client setup and administrators should be alert in this
+case.</p>
+<p>Note that usually a single remote peer should be all that is ever
+needed. Support for multiple peers is primarily included in support
+of load balancing scenarios. If the connection goes to a specific
+server, only one specific certificate is ever expected (just like
+when connecting to a specific ssh server).
+To specify multiple fingerprints, just enclose them in braces like
+this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">tls</span><span class="o">.</span><span class="n">permittedPeer</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SHA1:...1&quot;</span><span class="p">,</span> <span class="s2">&quot;SHA1:....2&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To specify just a single peer, you can either specify the string
+directly or enclose it in braces.</p>
+</li>
+<li><p class="first"><strong>tls.authMode</strong> mode Sets the mode used for mutual authentication.
+Supported values are either &#8220;<em>fingerprint</em>&#8221; or &#8220;<em>name&#8221;</em>.
+Fingerprint mode basically is what SSH does. It does not require a
+full PKI to be present, instead self-signed certs can be used on all
+peers. Even if a CA certificate is given, the validity of the peer
+cert is NOT verified against it. Only the certificate fingerprint
+counts.
+In &#8220;name&#8221; mode, certificate validation happens. Here, the matching is
+done against the certificate&#8217;s subjectAltName and, as a fallback, the
+subject common name. If the certificate contains multiple names, a
+match on any one of these names is considered good and permits the
+peer to talk to rsyslog.</p>
+</li>
+<li><p class="first"><strong>tls.cacert</strong> the CA certificate that can verify the machine certs</p>
+</li>
+<li><p class="first"><strong>tls.mycert</strong> the machine public certiificate</p>
+</li>
+<li><p class="first"><strong>tls.myprivkey</strong> the machine private key</p>
+</li>
+<li><p class="first"><strong>tls.prioritystring</strong> (not mandatory, string)
+This parameter permits to specify the so-called &#8220;priority string&#8221; to
+GnuTLS. This string gives complete control over all crypto
+parameters, including compression setting. For this reason, when the
+prioritystring is specified, the &#8220;tls.compression&#8221; parameter has no
+effect and is ignored.
+Full information about how to construct a priority string can be
+found in the GnuTLS manual. At the time of this writing, this
+information was contained in <a class="reference external" href="http://gnutls.org/manual/html_node/Priority-Strings.html">section 6.10 of the GnuTLS
+manual</a>.
+<strong>Note: this is an expert parameter.</strong> Do not use if you do not
+exactly know what you are doing.</p>
+</li>
+<li><p class="first"><strong>localclientip</strong> ip_address (not mandatory, string)
+omrelp uses ip_address as local client address while connecting
+to remote logserver.</p>
+</li>
+</ul>
+<p><strong>Sample:</strong></p>
+<p>The following sample sends all messages to the central server
+&#8220;centralserv&#8221; at port 2514 (note that that server must run imrelp on
+port 2514).</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;omrelp&quot;)
+action(type=&quot;omrelp&quot; target=&quot;centralserv&quot; port=&quot;2514&quot;)
+</pre></div>
+</div>
+<p><strong>Legacy Configuration Directives</strong>:</p>
+<p>This module uses old-style action configuration to keep consistent with
+the forwarding rule. So far, no additional configuration directives can
+be specified. To send a message via RELP, use</p>
+<div class="highlight-python"><div class="highlight"><pre>*.*  :omrelp:&lt;server&gt;:&lt;port&gt;;&lt;template&gt;
+</pre></div>
+</div>
+<p>just as you use</p>
+<div class="highlight-python"><div class="highlight"><pre>*.*  @@&lt;server&gt;:&lt;port&gt;;&lt;template&gt;
+</pre></div>
+</div>
+<p>to forward a message via plain tcp syslog.</p>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<p>See <a class="reference internal" href="imrelp.html"><em>imrelp</em></a>, which documents them.</p>
+<p><strong>Legacy Sample:</strong></p>
+<p>The following sample sends all messages to the central server
+&#8220;centralserv&#8221; at port 2514 (note that that server must run imrelp on
+port 2514).</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad omrelp
+*.* :omrelp:centralserv:2514
+</pre></div>
+</div>
+<p>Note: to use IPv6 addresses, encode them in [::1] format.</p>
+<p>This documentation is part of the
+<a class="reference external" href="http://www.rsyslog.com/">rsyslog</a> project.
+Copyright (C) 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="omprog.html"
+                        title="previous chapter">omprog: Program integration Output module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="omruleset.html"
+                        title="next chapter">omruleset: ruleset output/including module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/omrelp.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/omrelp.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="omruleset.html" title="omruleset: ruleset output/including module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="omprog.html" title="omprog: Program integration Output module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" >Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

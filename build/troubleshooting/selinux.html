@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Troubleshooting SELinux-Related Issues &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Troubleshooting" href="index.html" />
+    <link rel="next" title="Rsyslog Debug Support" href="debug.html" />
+    <link rel="prev" title="Output File is not Being Written" href="file_not_written.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="debug.html" title="Rsyslog Debug Support"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="file_not_written.html" title="Output File is not Being Written"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Troubleshooting</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="troubleshooting-selinux-related-issues">
+<h1>Troubleshooting SELinux-Related Issues<a class="headerlink" href="#troubleshooting-selinux-related-issues" title="Permalink to this headline">¶</a></h1>
+<p>SELinux by its very nature can block many features of rsyslog (or any
+other process, of course), even when run under root. Actually, this is
+what it is supposed to do, so there is nothing bad about it.</p>
+<p>If you suspect that some issues stems back to SELinux configuration,
+do the following:</p>
+<ul class="simple">
+<li><em>temporarily</em> disabling SELinux</li>
+<li>restart rsyslog</li>
+<li>retry the operation</li>
+</ul>
+<p>If it now succeeds, you know that you have a SELinux policy issue.
+The solution here is <strong>not</strong> to keep SELinux disabled. Instead do:</p>
+<ul class="simple">
+<li>reenable SELinux (set back to previous state, whatever that was)</li>
+<li>add proper SELinux policies for what you want to do with rsyslog</li>
+</ul>
+<p>With SELinux running, restart rsyslog
+$ sudo audit2allow -a
+audit2allow will read the audit.log and list any SELinux infractions, namely the rsyslog infractions
+$ sudo audit2allow -a -M &lt;FRIENDLY_NAME_OF_MODULE&gt;.pp
+audit2allow will create a module allowing all previous infractions to have access
+$ sudo semodule -i &lt;FRIENDLY_NAME_OF_MODULE&gt;.pp
+Your module is loaded! Restart rsyslog and continue to audit until no more infractions are detected and rsyslog has proper access. Additionally, you can save these modules and install them on future machines where rsyslog will need the same access.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="file_not_written.html"
+                        title="previous chapter">Output File is not Being Written</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="debug.html"
+                        title="next chapter">Rsyslog Debug Support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/troubleshooting/selinux.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/troubleshooting/selinux.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="debug.html" title="Rsyslog Debug Support"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="file_not_written.html" title="Output File is not Being Written"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Troubleshooting</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

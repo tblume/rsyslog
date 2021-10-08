@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Output Channels &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Dropping privileges in rsyslog" href="droppriv.html" />
+    <link rel="prev" title="Where are the modules integrated into the Message Flow?" href="modules/workflow.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="droppriv.html" title="Dropping privileges in rsyslog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules/workflow.html" title="Where are the modules integrated into the Message Flow?"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="output-channels">
+<h1>Output Channels<a class="headerlink" href="#output-channels" title="Permalink to this headline">¶</a></h1>
+<p>Output Channels are a new concept first introduced in rsyslog 0.9.0.
+<strong>As of this writing, it is most likely that they will be replaced by
+something different in the future.</strong> So if you use them, be prepared to
+change you configuration file syntax when you upgrade to a later
+release.
+The idea behind output channel definitions is that it shall provide an
+umbrella for any type of output that the user might want. In essence,
+this is the &#8220;file&#8221; part of selector lines (and this is why we are not
+sure output channel syntax will stay after the next review). There is a
+difference, though: selector channels both have filter conditions
+(currently facility and severity) as well as the output destination.
+they can only be used to write to files - not pipes, ttys or whatever
+Output channels define the output definition, only. As of this build,
+else. If we stick with output channels, this will change over time.</p>
+<p>In concept, an output channel includes everything needed to know about
+an output actions. In practice, the current implementation only carries
+a filename, a maximum file size and a command to be issued when this
+file size is reached. More things might be present in future version,
+which might also change the syntax of the directive.</p>
+<p>Output channels are defined via an $outchannel directive. It&#8217;s syntax is
+as follows:
+$outchannel name,file-name,max-size,action-on-max-size
+name is the name of the output channel (not the file), file-name is the
+file name to be written to, max-size the maximum allowed size and
+action-on-max-size a command to be issued when the max size is reached.
+This command always has exactly one parameter. The binary is that part
+of action-on-max-size before the first space, its parameter is
+everything behind that space.
+Please note that max-size is queried BEFORE writing the log message to
+the file. So be sure to set this limit reasonably low so that any
+message might fit. For the current release, setting it 1k lower than you
+expected is helpful. The max-size must always be specified in bytes -
+there are no special symbols (like 1k, 1m,...) at this point of
+development.
+Keep in mind that $outchannel just defines a channel with &#8220;name&#8221;. It
+does not activate it. To do so, you must use a selector line (see
+below). That selector line includes the channel name plus an $ sign in
+front of it. A sample might be:
+*.* :omfile:$mychannel
+In its current form, output channels primarily provide the ability to
+size-limit an output file. To do so, specify a maximum size. When this
+size is reached, rsyslogd will execute the action-on-max-size command
+and then reopen the file and retry. The command should be something like
+a <a class="reference external" href="log_rotation_fix_size.html">log rotation script</a> or a similar
+thing.</p>
+<p>If there is no action-on-max-size command or the command did not resolve
+the situation, the file is closed and never reopened by rsyslogd
+(except, of course, by huping it). This logic was integrated when we
+first experienced severe issues with files larger 2gb, which could lead
+to rsyslogd dumping core. In such cases, it is more appropriate to stop
+writing to a single file. Meanwhile, rsyslogd has been fixed to support
+files larger 2gb, but obviously only on file systems and operating
+system versions that do so. So it can still make sense to enforce a 2gb
+file size limit.</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.</p>
+<p>Copyright © 2008 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 2 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules/workflow.html"
+                        title="previous chapter">Where are the modules integrated into the Message Flow?</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="droppriv.html"
+                        title="next chapter">Dropping privileges in rsyslog</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/output_channels.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/output_channels.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="droppriv.html" title="Dropping privileges in rsyslog"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules/workflow.html" title="Where are the modules integrated into the Message Flow?"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

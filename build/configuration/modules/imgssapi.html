@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imgssapi: GSSAPI Syslog Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="GSSAPI module support in rsyslog v3" href="gssapi.html" />
+    <link rel="prev" title="imfile: Text File Input Module" href="imfile.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gssapi.html" title="GSSAPI module support in rsyslog v3"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imfile.html" title="imfile: Text File Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imgssapi-gssapi-syslog-input-module">
+<h1>imgssapi: GSSAPI Syslog Input Module<a class="headerlink" href="#imgssapi-gssapi-syslog-input-module" title="Permalink to this headline">¶</a></h1>
+<p>Provides the ability to receive syslog messages from the network
+protected via Kerberos 5 encryption and authentication. This module also
+accept plain tcp syslog messages on the same port if configured to do
+so. If you need just plain tcp, use <a class="reference internal" href="imtcp.html"><em>imtcp</em></a> instead.</p>
+<p>Note: This is a contributed module, which is not supported by the
+rsyslog team. We recommend to use RFC5425 TLS-protected syslog
+instead.</p>
+<p><strong>Author:</strong>varmojfekoj</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gssapi.html">GSSAPI module support in rsyslog v3</a></li>
+</ul>
+</div>
+<div class="section" id="configuration-directives">
+<h2>Configuration Directives<a class="headerlink" href="#configuration-directives" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">$InputGSSServerRun &lt;port&gt;</code></dt>
+<dd><p>Starts a GSSAPI server on selected port - note that this runs
+independently from the TCP server.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputGSSServerServiceName &lt;name&gt;</code></dt>
+<dd><p>The service name to use for the GSS server.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputGSSServerPermitPlainTCP on|off</code></dt>
+<dd><p>Permits the server to receive plain tcp syslog (without GSS) on the
+same port</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputGSSServerMaxSessions &lt;number&gt;</code></dt>
+<dd><p>Sets the maximum number of sessions supported</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputGSSServerKeepAlive on|off</code></dt>
+<dd><p><em>Requires: 8.5.0 or above</em></p>
+<p><em>Default: off</em></p>
+<p>Enables or disable keep-alive handling.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="caveats-known-bugs">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>module always binds to all interfaces</li>
+<li>only a single listener can be bound</li>
+</ul>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>This sets up a GSS server on port 1514 that also permits to receive
+plain tcp syslog messages (on the same port):</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imgssapi # needs to be done just once
+$InputGSSServerRun 1514
+$InputGSSServerPermitPlainTCP on
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imgssapi: GSSAPI Syslog Input Module</a><ul>
+<li><a class="reference internal" href="#configuration-directives">Configuration Directives</a></li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imfile.html"
+                        title="previous chapter">imfile: Text File Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gssapi.html"
+                        title="next chapter">GSSAPI module support in rsyslog v3</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imgssapi.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imgssapi.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gssapi.html" title="GSSAPI module support in rsyslog v3"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imfile.html" title="imfile: Text File Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

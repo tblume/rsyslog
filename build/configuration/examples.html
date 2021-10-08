@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Legacy Configuration Directives" href="index_directives.html" />
+    <link rel="prev" title="timezone" href="timezone.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index_directives.html" title="Legacy Configuration Directives"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="timezone.html" title="timezone"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Below are example for templates and selector lines. I hope they are
+self-explanatory.</p>
+<div class="section" id="templates">
+<h2>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h2>
+<p>Please note that the samples are split across multiple lines. A template
+MUST NOT actually be split across multiple lines.</p>
+<dl class="docutils">
+<dt>A template that resembles traditional syslogd file output:</dt>
+<dd>$template TraditionalFormat,&#8221;%timegenerated% %HOSTNAME%
+%syslogtag%%msg:::drop-last-lf%\n&#8221;</dd>
+<dt>A template that tells you a little more about the message:</dt>
+<dd>$template precise,&#8221;%syslogpriority%,%syslogfacility%,%timegenerated%,%HOSTNAME%,
+%syslogtag%,%msg%\n&#8221;</dd>
+<dt>A template for RFC 3164 format:</dt>
+<dd>$template RFC3164fmt,&#8221;&lt;%PRI%&gt;%TIMESTAMP% %HOSTNAME% %syslogtag%%msg%&#8221;</dd>
+<dt>A template for the format traditonally used for user messages:</dt>
+<dd>$template usermsg,&#8221; XXXX%syslogtag%%msg%\n\r&#8221;</dd>
+<dt>And a template with the traditonal wall-message format:</dt>
+<dd>$template wallmsg,&#8221;\r\n\7Message from syslogd&#64;%HOSTNAME% at %timegenerated%</dd>
+<dt>A template that can be used for the database write (please note the SQL template option)</dt>
+<dd>$template MySQLInsert,&#8221;insert iut, message, receivedat values
+(&#8216;%iut%&#8217;, &#8216;%msg:::UPPERCASE%&#8217;, &#8216;%timegenerated:::date-mysql%&#8217;)
+into systemevents\r\n&#8221;, SQL</dd>
+</dl>
+<p>The following template emulates
+<a class="reference external" href="http://www.winsyslog.com/en/">WinSyslog</a> format (it&#8217;s an
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a> format, you do not feel bad if
+you don&#8217;t know it ;)). It&#8217;s interesting to see how it takes different
+parts out of the date stamps. What happens is that the date stamp is
+split into the actual date and time and the these two are combined with
+just a comma in between them.</p>
+<div class="highlight-python"><div class="highlight"><pre>$template WinSyslogFmt,&quot;%HOSTNAME%,%timegenerated:1:10:date-rfc3339%,
+%timegenerated:12:19:date-rfc3339%,%timegenerated:1:10:date-rfc3339%,
+%timegenerated:12:19:date-rfc3339%,%syslogfacility%,%syslogpriority%,
+%syslogtag%%msg%\\n&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="selector-lines">
+<h2>Selector lines<a class="headerlink" href="#selector-lines" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre># Store critical stuff in critical
+#
+*.=crit;kern.none /var/adm/critical
+</pre></div>
+</div>
+<p>This will store all messages with the priority crit in the file
+/var/adm/critical, except for any kernel message.</p>
+<div class="highlight-python"><div class="highlight"><pre># Kernel messages are first, stored in the kernel
+# file, critical messages and higher ones also go
+# to another host and to the console. Messages to
+# the host server.example.net are forwarded in RFC 3164
+# format (using the template defined above).
+#
+kern.* /var/adm/kernel
+kern.crit @server.example.net;RFC3164fmt
+kern.crit /dev/console
+kern.info;kern.!err /var/adm/kernel-info
+</pre></div>
+</div>
+<p>The first rule direct any message that has the kernel facility to the
+file /var/adm/kernel.</p>
+<p>The second statement directs all kernel messages of the priority crit
+and higher to the remote host server.example.net. This is useful, because if the
+host crashes and the disks get irreparable errors you might not be able
+to read the stored messages. If they&#8217;re on a remote host, too, you still
+can try to find out the reason for the crash.</p>
+<p>The third rule directs these messages to the actual console, so the
+person who works on the machine will get them, too.</p>
+<p>The fourth line tells rsyslogd to save all kernel messages that come
+with priorities from info up to warning in the file /var/adm/kernel-info.
+Everything from err and higher is excluded.</p>
+<div class="highlight-python"><div class="highlight"><pre># The tcp wrapper loggs with mail.info, we display
+# all the connections on tty12
+#
+mail.=info /dev/tty12
+</pre></div>
+</div>
+<p>This directs all messages that uses mail.info (in source LOG_MAIL |
+LOG_INFO) to /dev/tty12, the 12th console. For example the tcpwrapper
+tcpd(8) uses this as it&#8217;s default.</p>
+<div class="highlight-python"><div class="highlight"><pre># Store all mail concerning stuff in a file
+#
+mail.\*;mail.!=info /var/adm/mail
+</pre></div>
+</div>
+<p>This pattern matches all messages that come with the mail facility,
+except for the info priority. These will be stored in the file
+/var/adm/mail.</p>
+<div class="highlight-python"><div class="highlight"><pre># Log all mail.info and news.info messages to info
+#
+mail,news.=info /var/adm/info
+</pre></div>
+</div>
+<p>This will extract all messages that come either with mail.info or with
+news.info and store them in the file /var/adm/info.</p>
+<div class="highlight-python"><div class="highlight"><pre># Log info and notice messages to messages file
+#
+*.=info;*.=notice;\
+mail.none /var/log/messages
+</pre></div>
+</div>
+<p>This lets rsyslogd log all messages that come with either the info or
+the notice facility into the file /var/log/messages, except for all
+messages that use the mail facility.</p>
+<div class="highlight-python"><div class="highlight"><pre># Log info messages to messages file
+#
+*.=info;\
+mail,news.none /var/log/messages
+</pre></div>
+</div>
+<p>This statement causes rsyslogd to log all messages that come with the
+info priority to the file /var/log/messages. But any message coming
+either with the mail or the news facility will not be stored.</p>
+<div class="highlight-python"><div class="highlight"><pre># Emergency messages will be displayed to all users
+#
+*.=emerg :omusrmsg:*
+</pre></div>
+</div>
+<p>This rule tells rsyslogd to write all emergency messages to all
+currently logged in users.</p>
+<div class="highlight-python"><div class="highlight"><pre># Messages of the priority alert will be directed
+# to the operator
+#
+*.alert root,rgerhards
+</pre></div>
+</div>
+<p>This rule directs all messages with a priority of alert or higher to
+the terminals of the operator, i.e. of the users &#8220;root&#8217;&#8217; and
+&#8220;rgerhards&#8217;&#8217; if they&#8217;re logged in.</p>
+<div class="highlight-python"><div class="highlight"><pre>*.* @server.example.net
+</pre></div>
+</div>
+<p>This rule would redirect all messages to a remote host called
+server.example.net. This is useful especially in a cluster of machines where all
+syslog messages will be stored on only one machine.</p>
+<p>In the format shown above, UDP is used for transmitting the message.
+The destination port is set to the default auf 514. Rsyslog is also
+capable of using much more secure and reliable TCP sessions for message
+forwarding. Also, the destination port can be specified. To select TCP,
+simply add one additional &#64; in front of the host name (that is, &#64;host is
+UPD, &#64;&#64;host is TCP). For example:</p>
+<div class="highlight-python"><div class="highlight"><pre>*.* @@server.example.net
+</pre></div>
+</div>
+<p>To specify the destination port on the remote machine, use a colon
+followed by the port number after the machine name. The following
+forwards to port 1514 on server.example.net:</p>
+<div class="highlight-python"><div class="highlight"><pre>*.* @@server.example.net:1514
+</pre></div>
+</div>
+<p>This syntax works both with TCP and UDP based syslog. However, you will
+probably primarily need it for TCP, as there is no well-accepted port
+for this transport (it is non-standard). For UDP, you can usually stick
+with the default auf 514, but might want to modify it for security reasons.
+If you would like to do that, it&#8217;s quite easy:</p>
+<div class="highlight-python"><div class="highlight"><pre>*.* @server.example.net:1514
+*.* &gt;dbhost,dbname,dbuser,dbpassword;dbtemplate
+</pre></div>
+</div>
+<p>This rule writes all message to the database &#8220;dbname&#8221; hosted on
+&#8220;dbhost&#8221;. The login is done with user &#8220;dbuser&#8221; and password
+&#8220;dbpassword&#8221;. The actual table that is updated is specified within the
+template (which contains the insert statement). The template is called
+&#8220;dbtemplate&#8221; in this case.</p>
+<div class="highlight-python"><div class="highlight"><pre>:msg,contains,&quot;error&quot; @server.example.net
+</pre></div>
+</div>
+<p>This rule forwards all messages that contain the word &#8220;error&#8221; in the msg
+part to the server &#8220;errorServer&#8221;. Forwarding is via UDP. Please note the
+colon in fron</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 2 or higher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#templates">Templates</a></li>
+<li><a class="reference internal" href="#selector-lines">Selector lines</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="timezone.html"
+                        title="previous chapter">timezone</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="index_directives.html"
+                        title="next chapter">Legacy Configuration Directives</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/examples.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/examples.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="index_directives.html" title="Legacy Configuration Directives"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="timezone.html" title="timezone"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

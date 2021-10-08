@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Dropping privileges in rsyslog &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Notes on IPv6 Handling in Rsyslog" href="ipv6.html" />
+    <link rel="prev" title="Output Channels" href="output_channels.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ipv6.html" title="Notes on IPv6 Handling in Rsyslog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="output_channels.html" title="Output Channels"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dropping-privileges-in-rsyslog">
+<h1>Dropping privileges in rsyslog<a class="headerlink" href="#dropping-privileges-in-rsyslog" title="Permalink to this headline">¶</a></h1>
+<p><strong>Available since:&nbsp;&nbsp;&nbsp;</strong> 4.1.1</p>
+<p><strong>Description</strong>:</p>
+<p>Rsyslogd provides the ability to drop privileges by impersonating as
+another user and/or group after startup.</p>
+<p>Please note that due to POSIX standards, rsyslogd always needs to start
+up as root if there is a listener who must bind to a network port below
+1024. For example, the UDP listener usually needs to listen to 514 and
+therefore rsyslogd needs to start up as root.</p>
+<p>If you do not need this functionality, you can start rsyslog directly as
+an ordinary user. That is probably the safest way of operations.
+However, if a startup as root is required, you can use the
+$PrivDropToGroup and $PrivDropToUser config directives to specify a
+group and/or user that rsyslogd should drop to after initialization.
+Once this happens, the daemon runs without high privileges (depending,
+of course, on the permissions of the user account you specified).</p>
+<p>There is some additional information available in the <a class="reference external" href="http://wiki.rsyslog.com/index.php/Security#Dropping_Privileges">rsyslog
+wiki</a>.</p>
+<p><strong>Configuration Directives</strong>:</p>
+<ul class="simple">
+<li><strong>$PrivDropToUser</strong>
+Name of the user rsyslog should run under after startup. Please note
+that this user is looked up in the system tables. If the lookup
+fails, privileges are NOT dropped. Thus it is advisable to use the
+less convenient $PrivDropToUserID directive. If the user id can be
+looked up, but can not be set, rsyslog aborts.</li>
+<li><strong>$PrivDropToUserID</strong>
+Much the same as $PrivDropToUser, except that a numerical user id
+instead of a name is specified.Thus, privilege drop will always
+happen. rsyslogd aborts.</li>
+<li><strong>$PrivDropToGroup</strong>
+Name of the group rsyslog should run under after startup. Please
+note that this user is looked up in the system tables. If the lookup
+fails, privileges are NOT dropped. Thus it is advisable to use the
+less convenient $PrivDropToGroupID directive. Note that all
+supplementary groups are removed from the process if $PrivDropToGroup
+is specified. If the group id can be looked up, but can not be set,
+rsyslog aborts.</li>
+<li><strong>$PrivDropToGroupID</strong>
+Much the same as $PrivDropToGroup, except that a numerical group id
+instead of a name is specified. Thus, privilege drop will always
+happen.</li>
+</ul>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="output_channels.html"
+                        title="previous chapter">Output Channels</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ipv6.html"
+                        title="next chapter">Notes on IPv6 Handling in Rsyslog</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/droppriv.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/droppriv.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ipv6.html" title="Notes on IPv6 Handling in Rsyslog"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="output_channels.html" title="Output Channels"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

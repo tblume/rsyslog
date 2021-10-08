@@ -1,0 +1,488 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imudp: UDP Syslog Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imuxsock: Unix Socket Input" href="imuxsock.html" />
+    <link rel="prev" title="imtcp: TCP Syslog Input Module" href="imtcp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imuxsock.html" title="imuxsock: Unix Socket Input"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imtcp.html" title="imtcp: TCP Syslog Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imudp-udp-syslog-input-module">
+<h1>imudp: UDP Syslog Input Module<a class="headerlink" href="#imudp-udp-syslog-input-module" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils" id="index-0">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>Module Name:</strong></td>
+<td><strong>imudp</strong></td>
+</tr>
+<tr class="row-even"><td><strong>Author:</strong></td>
+<td><a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a> &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</td>
+</tr>
+</tbody>
+</table>
+<p>Provides the ability to receive syslog messages via UDP.</p>
+<p>Multiple receivers may be configured by specifying multiple input
+statements.</p>
+<p>Note that in order to enable UDP reception, Firewall rules probably
+need to be modified as well. Also, SELinux may need additional rules.</p>
+<div class="section" id="configuration-parameters">
+<h2>Configuration Parameters<a class="headerlink" href="#configuration-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-parameters">
+<span id="index-1"></span><h3>Module Parameters<a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt>
+<code class="descname">TimeRequery &lt;nbr-of-times&gt;</code></dt>
+<dd><p><em>Default: 2</em></p>
+<p>This is a performance optimization. Getting the system time is very
+costly. With this setting, imudp can be instructed to obtain the
+precise time only once every n-times. This logic is only activated if
+messages come in at a very fast rate, so doing less frequent time
+calls should usually be acceptable. The default value is two, because
+we have seen that even without optimization the kernel often returns
+twice the identical time. You can set this value as high as you like,
+but do so at your own risk. The higher the value, the less precise
+the timestamp.</p>
+<p><strong>Note:</strong> the timeRequery is done based on executed system calls
+(<strong>not</strong> messages received). So when batch sizes are used, multiple
+messages are received with one system call. All of these messages
+always receive the same timestamp, as they are effectively received
+at the same time. When there is very high traffic and successive
+system calls immediately return the next batch of messages, the time
+requery logic kicks in, which means that by default time is only
+queried for every second batch. Again, this should not cause a
+too-much deviation as it requires messages to come in very rapidly.
+However, we advise not to set the &#8220;timeRequery&#8221; parameter to a large
+value (larger than 10) if input batches are used.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">SchedulingPolicy &lt;rr/fifo/other&gt;</code></dt>
+<dd><p><em>Default: unset</em></p>
+<p>Can be used the set the scheduler priority, if the necessary
+functionality is provided by the platform. Most useful to select
+&#8220;fifo&#8221; for real-time processing under Linux (and thus reduce chance
+of packet loss).</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">SchedulingPriority &lt;number&gt;</code></dt>
+<dd><p><em>Default: unset</em></p>
+<p>Scheduling priority to use.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">batchSize &lt;number&gt;</code></dt>
+<dd><p><em>Default: 32</em></p>
+<p>This parameter is only meaningful if the system support recvmmsg()
+(newer Linux OSs do this). The parameter is silently ignored if the
+system does not support it. If supported, it sets the maximum number
+of UDP messages that can be obtained with a single OS call. For
+systems with high UDP traffic, a relatively high batch size can
+reduce system overhead and improve performance. However, this
+parameter should not be overdone. For each buffer, max message size
+bytes are statically required. Also, a too-high number leads to
+reduced efficiency, as some structures need to be completely
+initialized before the OS call is done. We would suggest to not set
+it above a value of 128, except if experimental results show that
+this is useful.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">threads &lt;number&gt;</code></dt>
+<dd><p><em>Available since: 7.5.5</em></p>
+<p><em>Default: 1</em></p>
+<p>Number of worker threads to process incoming messages. These threads
+are utilized to pull data off the network. On a busy system,
+additional threads (but not more than there are CPUs/Cores) can help
+improving performance and avoiding message loss. Note that with too
+many threads, performance can suffer. There is a hard upper limit on
+the number of threads that can be defined. Currently, this limit is
+set to 32. It may increase in the future when massive multicore
+processors become available.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="input-parameters">
+<span id="index-2"></span><h3>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<p>..index:: imudp; address (input parameter)</p>
+<dl class="function">
+<dt>
+<code class="descname">Address &lt;IP&gt;</code></dt>
+<dd><p><em>Default: *</em></p>
+<p>Local IP address (or name) the UDP server should bind to. Use &#8220;*&#8221;
+to bind to all of the machine&#8217;s addresses.</p>
+</dd></dl>
+
+<span class="target" id="index-3"></span><dl class="function">
+<dt>
+<code class="descname">Port &lt;port&gt;</code></dt>
+<dd><p><em>Default: 514</em></p>
+<p>Specifies the port the server shall listen to.. Either a single port can
+be specified or an array of ports. If multiple ports are specified, a
+listener will be automatically started for each port. Thus, no
+additional inputs need to be configured.</p>
+<p>Single port: Port=&#8221;514&#8221;</p>
+<p>Array of ports: Port=[&#8220;514&#8221;,&#8221;515&#8221;,&#8221;10514&#8221;,&#8221;...&#8221;]</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">Ruleset &lt;ruleset&gt;</code></dt>
+<dd><p><em>Default: RSYSLOG_DefaultRuleset</em></p>
+<p>Binds the listener to a specific <a class="reference internal" href="../../concepts/multi_ruleset.html"><em>ruleset</em></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Interval [number]</code></dt>
+<dd><p><em>Available since: 7.3.1</em></p>
+<p><em>Default: 0</em></p>
+<p>The rate-limiting interval in seconds. Value 0 turns off rate limiting.
+Set it to a number of seconds (5 recommended) to activate rate-limiting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Burst [number]</code></dt>
+<dd><p><em>Available since: 7.3.1</em></p>
+<p><em>Default: 10000</em></p>
+<p>Specifies the rate-limiting burst in number of messages.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">name [name]</code></dt>
+<dd><p><em>Available since: 8.3.3</em></p>
+<p><em>Default: imudp</em></p>
+<p>specifies the value of the inputname property. In older versions,
+this was always &#8220;imudp&#8221; for all
+listeners, which still is the default. Starting with 7.3.9 it can be
+set to different values for each listener. Note that when a single
+input statement defines multipe listner ports, the inputname will be
+the same for all of them. If you want to differentiate in that case,
+use &#8220;name.appendPort&#8221; to make them unique. Note that the
+&#8220;name&#8221; parameter can be an empty string. In that case, the
+corresponding inputname property will obviously also be the empty
+string. This is primarily meant to be used together with
+&#8220;name.appendPort&#8221; to set the inputname equal to the port.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">InputName [name]</code></dt>
+<dd><p><em>Available since: 7.3.9</em></p>
+<p><strong>Deprecated</strong></p>
+<p>This provides the same functionality as &#8220;name&#8221;. It is the historical
+parameter name and should not be used in new configurations. It is
+scheduled to be removed some time in the future.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">name.appendPort [on/off]</code></dt>
+<dd><p><em>Available since: 7.3.9</em></p>
+<p><em>Default: off</em></p>
+<p>Appends the port the the inputname property. Note that when no &#8220;name&#8221; is
+specified, the default of &#8220;imudp&#8221; is used and the port is appended to
+that default. So, for example, a listner port of 514 in that case
+will lead to an inputname of &#8220;imudp514&#8221;. The ability to append a port
+is most useful when multiple ports are defined for a single input and
+each of the inputnames shall be unique. Note that there currently is
+no differentiation between IPv4/v6 listeners on the same port.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">InputName.AppendPort [on/off]</code></dt>
+<dd><p><em>Available since: 7.3.9</em></p>
+<p><strong>Deprecated</strong></p>
+<p>This provides the same functionality as &#8220;name.appendPort&#8221;. It is the historical
+parameter name and should not be used in new configurations. It is
+scheduled to be removed some time in the future.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">defaultTZ &lt;timezone-info&gt;</code></dt>
+<dd><p><em>Default: unset</em></p>
+<p>This is an <strong>experimental</strong> parameter; details may change at any
+time and it may also be discoutinued without any early warning.
+Permits to set a default timezone for this listener. This is useful
+when working with legacy syslog (RFC3164 et al) residing in different
+timezones. If set it will be used as timezone for all messages <strong>that
+do not contain timezone info</strong>. Currently, the format <strong>must</strong> be
+&#8220;+/-hh:mm&#8221;, e.g. &#8220;-05:00&#8221;, &#8220;+01:30&#8221;. Other formats, including TZ
+names (like EST) are NOT yet supported. Note that consequently no
+daylight saving settings are evaluated when working with timezones.
+If an invalid format is used, &#8220;interesting&#8221; things can happen, among
+them malformed timestamps and rsyslogd segfaults. This will obviously
+be changed at the time this feature becomes non-experimental.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">rcvbufSize [size]</code></dt>
+<dd><p><em>Available since: 7.5.3</em></p>
+<p><em>Default: unset</em></p>
+<p><em>Maximum Value: 1G</em></p>
+<p>This request a socket receive buffer of specific size from the operating system. It
+is an expert parameter, which should only be changed for a good reason.
+Note that setting this parameter disables Linux auto-tuning, which
+usually works pretty well. The default value is 0, which means &#8220;keep
+the OS buffer size unchanged&#8221;. This is a size value. So in addition
+to pure integer values, sizes like &#8220;256k&#8221;, &#8220;1m&#8221; and the like can be
+specified. Note that setting very large sizes may require root or
+other special privileges. Also note that the OS may slightly adjust
+the value or shrink it to a system-set max value if the user is not
+sufficiently privileged. Technically, this parameter will result in a
+setsockopt() call with SO_RCVBUF (and SO_RCVBUFFORCE if it is
+available).</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.rsyslog.com/howto-store-remote-messages-in-a-separate-file/">rsyslog video tutorial on how to store remote messages in a separate file</a>.</li>
+<li>Description of <a class="reference external" href="http://www.rsyslog.com/rsyslog-statistic-counter/">rsyslog statistic
+counters</a>.
+This also describes all imudp counters.</li>
+</ul>
+</div>
+<div class="section" id="caveats-known-bugs">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Scheduling parameters are set <strong>after</strong> privileges have been dropped.
+In most cases, this means that setting them will not be possible
+after privilege drop. This may be worked around by using a
+sufficiently-privileged user account.</li>
+</ul>
+</div>
+<div class="section" id="samples">
+<h2>Samples<a class="headerlink" href="#samples" title="Permalink to this headline">¶</a></h2>
+<p>This sets up an UPD server on port 514:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imudp&quot;) # needs to be done just once
+input(type=&quot;imudp&quot; port=&quot;514&quot;)
+</pre></div>
+</div>
+<p>The following sample is mostly equivalent to the first one, but request
+a larger rcvuf size. Note that 1m most probably will not be honored by
+the OS until the user is sufficiently privileged.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imudp&quot;) # needs to be done just once
+input(type=&quot;imudp&quot; port=&quot;514&quot; rcvbufSize=&quot;1m&quot;)
+</pre></div>
+</div>
+<p>In the next example, we set up three listeners at ports 10514, 10515 and
+10516 and assign a listner name of &#8220;udp&#8221; to it, followed by the port
+number:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imudp&quot;)
+input(type=&quot;imudp&quot; port=[&quot;10514&quot;,&quot;10515&quot;,&quot;10516&quot;]
+      inputname=&quot;udp&quot; inputname.appendPort=&quot;on&quot;)
+</pre></div>
+</div>
+<p>The next example is almost equal to the previous one, but now the
+inputname property will just be set to the port number. So if a message
+was received on port 10515, the input name will be &#8220;10515&#8221; in this
+example whereas it was &#8220;udp10515&#8221; in the previous one. Note that to do
+that we set the inputname to the empty string.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imudp&quot;)
+input(type=&quot;imudp&quot; port=[&quot;10514&quot;,&quot;10515&quot;,&quot;10516&quot;]
+      inputname=&quot;&quot; inputname.appendPort=&quot;on&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-configuration-directives">
+<h2>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h2>
+<p>Legacy configuration parameters should <strong>not</strong> be used when crafting new
+configuration files. It is easy to get things wrong with them.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="25%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Directive</th>
+<th class="head">Equivalent Parameter</th>
+<th class="head">Requires</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>$UDPServerTimeRequery &lt;nbr-of-times&gt;</td>
+<td><em>TimeRequery</em></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>$IMUDPSchedulingPolicy &lt;rr/fifo/other&gt;</td>
+<td><em>SchedulingPolicy</em></td>
+<td>4.7.4+, 5.7.3+, 6.1.3+</td>
+</tr>
+<tr class="row-even"><td>$IMUDPSchedulingPriority &lt;number&gt;</td>
+<td><em>SchedulingPriority</em></td>
+<td>4.7.4+, 5.7.3+, 6.1.3+</td>
+</tr>
+<tr class="row-odd"><td>$UDPServerAddress &lt;IP&gt;</td>
+<td>Address</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>$UDPServerRun &lt;port&gt;</td>
+<td>Port</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>$InputUDPServerBindRuleset &lt;ruleset&gt;</td>
+<td>Ruleset</td>
+<td>5.3.2+</td>
+</tr>
+</tbody>
+</table>
+<p>Note: module parameters are given in <em>italics</em>. All others are input parameters.</p>
+<p>Multiple receivers may be configured by specifying $UDPServerRun
+multiple times.</p>
+<div class="section" id="legacy-sample">
+<h3>Legacy Sample<a class="headerlink" href="#legacy-sample" title="Permalink to this headline">¶</a></h3>
+<p>This sets up an UDP server on port 514:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imudp # needs to be done just once
+$UDPServerRun 514
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2009-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imudp: UDP Syslog Input Module</a><ul>
+<li><a class="reference internal" href="#configuration-parameters">Configuration Parameters</a><ul>
+<li><a class="reference internal" href="#module-parameters">Module Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#samples">Samples</a></li>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a><ul>
+<li><a class="reference internal" href="#legacy-sample">Legacy Sample</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imtcp.html"
+                        title="previous chapter">imtcp: TCP Syslog Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imuxsock.html"
+                        title="next chapter">imuxsock: Unix Socket Input</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imudp.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imudp.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imuxsock.html" title="imuxsock: Unix Socket Input"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imtcp.html" title="imtcp: TCP Syslog Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

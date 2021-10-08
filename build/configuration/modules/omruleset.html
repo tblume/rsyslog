@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>omruleset: ruleset output/including module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Output Modules" href="idx_output.html" />
+    <link rel="next" title="omsnmp: SNMP Trap Output Module" href="omsnmp.html" />
+    <link rel="prev" title="omrelp: RELP Output Module" href="omrelp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="omsnmp.html" title="omsnmp: SNMP Trap Output Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="omrelp.html" title="omrelp: RELP Output Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" accesskey="U">Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="omruleset-ruleset-output-including-module">
+<h1>omruleset: ruleset output/including module<a class="headerlink" href="#omruleset-ruleset-output-including-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; omruleset</strong></p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Available Since</strong>: 5.3.4</p>
+<p><strong>Deprecated in</strong>: 7.2.0+</p>
+<p><strong>Deprecation note</strong></p>
+<p>This module exists only for backwards-compatibility reasons. <strong>Do no
+longer use it in new configurations.</strong> It has been replaced by the much
+more efficient <a class="reference external" href="rainerscript_call.html">&#8220;call&#8221; RainerScript
+statement</a>. The &#8220;call&#8221; statement supports
+everything omruleset does, but in an easier to use way.</p>
+<p><strong>Description</strong>:</p>
+<p>This is a very special &#8220;output&#8221; module. It permits to pass a message
+object to another rule set. While this is a very simple action, it
+enables very complex configurations, e.g. it supports high-speed &#8220;and&#8221;
+conditions, sending data to the same file in a non-racy way,
+include-ruleset functionality as well as some high-performance
+optimizations (in case the rule sets have the necessary queue
+definitions).</p>
+<p>While it leads to a lot of power, this output module offers seamingly
+easy functionaltiy. The complexity (and capablities) arise from how
+everthing can be combined.</p>
+<p>With this module, a message can be sent to processing to another
+ruleset. This is somewhat similar to a &#8220;#include&#8221; in the C programming
+language. However, one needs to keep on the mind that a ruleset can
+contain its own queue and that a queue can run in various modes.</p>
+<p>Note that if no queue is defined in the ruleset, the message is enqueued
+into the main message queue. This most often is not optimal and means
+that message processing may be severely defered. Also note that when the
+ruleset&#8217;s target queue is full and no free space can be aquired within
+the usual timeout, the message object may actually be lost. This is an
+extreme scenario, but users building an audit-grade system need to know
+this restriction. For regular installations, it should not really be
+relevant.</p>
+<p><strong>At minimum, be sure you understand the</strong>
+<a class="reference internal" href="../ruleset/rsconf1_rulesetcreatemainqueue.html"><em>$RulesetCreateMainQueue</em></a>
+<strong>directive as well as the importance of statement order in rsyslog.conf
+before using omruleset!</strong></p>
+<p><strong>Recommended Use:</strong></p>
+<ul class="simple">
+<li>create rulesets specifically for omruleset</li>
+<li>create these rulesets with their own main queue</li>
+<li>decent queueing parameters (sizes, threads, etc) should be used for
+the ruleset main queue. If in doubt, use the same parameters as for
+the overall main queue.</li>
+<li>if you use multiple levels of ruleset nesting, double check for
+endless loops - the rsyslog engine does not detect these</li>
+</ul>
+<p><strong>Configuration Directives</strong>:</p>
+<ul class="simple">
+<li><strong>$ActionOmrulesetRulesetName</strong> ruleset-to-submit-to
+This directive specifies the name of the ruleset that the message
+provided to omruleset should be submitted to. This ruleset must
+already have been defined. Note that the directive is automatically
+reset after each :omruleset: action and there is no default. This is
+done to prevent accidential loops in ruleset definition, what can
+happen very quickly. The :omruleset: action will NOT be honored if no
+ruleset name has been defined. As usual, the ruleset name must be
+specified in front of the action that it modifies.</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>This example creates a ruleset for a write-to-file action. The idea here
+is that the same file is written based on multiple filters, problems
+occur if the file is used together with a buffer. That is because file
+buffers are action-specific, and so some partial buffers would be
+written. With omruleset, we create a single action inside its own
+ruleset and then pass all messages to it whenever we need to do so. Of
+course, such a simple situation could also be solved by a more complex
+filter, but the method used here can also be utilized in more complex
+scenarios (e.g. with multiple listeners). The example tries to keep it
+simple. Note that we create a ruleset-specific main queue (for
+simplicity with the default main queue parameters) in order to avoid
+re-queueing messages back into the main queue.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad omruleset # define ruleset for commonly written file
+$RuleSet CommonAction
+$RulesetCreateMainQueue on
+*.* /path/to/file.log
+
+#switch back to default ruleset
+$ruleset RSYSLOG_DefaultRuleset
+
+# begin first action
+# note that we must first specify which ruleset to use for omruleset:
+$ActionOmrulesetRulesetName CommonAction
+mail.info :omruleset:
+# end first action
+
+# begin second action
+# note that we must first specify which ruleset to use for omruleset:
+$ActionOmrulesetRulesetName CommonAction
+:FROMHOST, isequal, &quot;myhost.example.com&quot; :omruleset:
+#end second action
+
+# of course, we can have &quot;regular&quot; actions alongside :omrulset: actions
+*.* /path/to/general-message-file.log
+</pre></div>
+</div>
+<p>The next example is used to creat a high-performance nested and filter
+condition. Here, it is first checked if the message contains a string
+&#8220;error&#8221;. If so, the message is forwarded to another ruleset which then
+applies some filters. The advantage of this is that we can use
+high-performance filters where we otherwise would need to use the (much
+slower) expression-based filters. Also, this enables pipeline
+processing, in that second ruleset is executed in parallel to the first
+one.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad omruleset
+# define &quot;second&quot; ruleset
+$RuleSet nested
+$RulesetCreateMainQueue on
+# again, we use our own queue
+mail.* /path/to/mailerr.log
+kernel.* /path/to/kernelerr.log
+auth.* /path/to/autherr.log
+
+#switch back to default ruleset
+$ruleset RSYSLOG_DefaultRuleset
+
+# begin first action - here we filter on &quot;error&quot;
+# note that we must first specify which ruleset to use for omruleset:
+$ActionOmrulesetRulesetName nested
+:msg, contains, &quot;error&quot; :omruleset:
+#end first action
+
+# begin second action - as an example we can do anything else in
+# this processing. Note that these actions are processed concurrently
+# to the ruleset &quot;nested&quot;
+:FROMHOST, isequal, &quot;myhost.example.com&quot; /path/to/host.log
+#end second action
+
+# of course, we can have &quot;regular&quot; actions alongside :omrulset: actions
+*.* /path/to/general-message-file.log
+</pre></div>
+</div>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<p>The current configuration file language is not really adequate for a
+complex construct like omruleset. Unfortunately, more important work is
+currently preventing me from redoing the config language. So use extreme
+care when nesting rulesets and be sure to test-run your config before
+putting it into production, ensuring you have a suffciently large probe
+of the traffic run over it. If problems arise, the <a class="reference external" href="troubleshoot.html">rsyslog debug
+log</a> is your friend.</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.</p>
+<p>Copyright © 2009-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="omrelp.html"
+                        title="previous chapter">omrelp: RELP Output Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="omsnmp.html"
+                        title="next chapter">omsnmp: SNMP Trap Output Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/omruleset.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/omruleset.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="omsnmp.html" title="omsnmp: SNMP Trap Output Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="omrelp.html" title="omrelp: RELP Output Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" >Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

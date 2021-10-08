@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ommongodb: MongoDB Output Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Output Modules" href="idx_output.html" />
+    <link rel="next" title="ommysql: MySQL Database Output Module" href="ommysql.html" />
+    <link rel="prev" title="ommail: Mail Output Module" href="ommail.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ommysql.html" title="ommysql: MySQL Database Output Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ommail.html" title="ommail: Mail Output Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" accesskey="U">Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ommongodb-mongodb-output-module">
+<h1>ommongodb: MongoDB Output Module<a class="headerlink" href="#ommongodb-mongodb-output-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; ommongodb</strong></p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Description</strong>:</p>
+<p>This module provides native support for logging to MongoDB.</p>
+<p><strong>Action Parameters</strong>:</p>
+<ul class="simple">
+<li><strong>server</strong>
+Name or address of the MongoDB server</li>
+<li><strong>serverport</strong>
+Permits to select a non-standard port for the MongoDB server. The
+default is 0, which means the system default port is used. There is
+no need to specify this parameter unless you know the server is
+running on a non-standard listen port.</li>
+<li><strong>db</strong>
+Database to use</li>
+<li><strong>collection</strong>
+Collection to use</li>
+<li><strong>uid</strong>
+logon userid used to connect to server. Must have proper permissions.</li>
+<li><strong>pwd</strong>
+the user&#8217;s password</li>
+<li><strong>template</strong>
+Template to use when submitting messages.</li>
+</ul>
+<p>Note rsyslog contains a canned default template to write to the MongoDB.
+It will be used automatically if no other template is specified to be
+used. This template is:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;BSON&quot; type=&quot;string&quot; string=&quot;\\&quot;sys\\&quot; : \\&quot;%hostname%\\&quot;,
+\\&quot;time\\&quot; : \\&quot;%timereported:::rfc3339%\\&quot;, \\&quot;time\_rcvd\\&quot; :
+\\&quot;%timegenerated:::rfc3339%\\&quot;, \\&quot;msg\\&quot; : \\&quot;%msg%\\&quot;,
+\\&quot;syslog\_fac\\&quot; : \\&quot;%syslogfacility%\\&quot;, \\&quot;syslog\_server\\&quot; :
+\\&quot;%syslogseverity%\\&quot;, \\&quot;syslog\_tag\\&quot; : \\&quot;%syslogtag%\\&quot;,
+\\&quot;procid\\&quot; : \\&quot;%programname%\\&quot;, \\&quot;pid\\&quot; : \\&quot;%procid%\\&quot;,
+\\&quot;level\\&quot; : \\&quot;%syslogpriority-text%\\&quot;&quot;)
+</pre></div>
+</div>
+<p>This creates the BSON document needed for MongoDB if no template is
+specified. The default schema is aligned to CEE and project lumberjack.
+As such, the field names are standard lumberjack field names, and
+<strong>not</strong> <a class="reference external" href="property_replacer.html">rsyslog property names</a>. When
+specifying templates, be sure to use rsyslog property names as given in
+the table. If you would like to use lumberjack-based field names inside
+MongoDB (which probably is useful depending on the use case), you need
+to select fields names based on the lumberjack schema. If you just want
+to use a subset of the fields, but with lumberjack names, you can look
+up the mapping in the default template. For example, the lumberjack
+field &#8220;level&#8221; contains the rsyslog property &#8220;syslogpriority-text&#8221;.</p>
+<p><strong>Sample:</strong></p>
+<p>The following sample writes all syslog messages to the database &#8220;syslog&#8221;
+and into the collection &#8220;log&#8221; on mongoserver.example.com. The server is
+being accessed under the account of &#8220;user&#8221; with password &#8220;pwd&#8221;.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;ommongodb&quot;)
+action(type=&quot;ommongodb&quot;
+       server=&quot;mongoserver.example.com&quot; db=&quot;syslog&quot; collection=&quot;log&quot;
+       uid=&quot;user&quot; pwd=&quot;pwd&quot;)
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the ASL 2.0.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ommail.html"
+                        title="previous chapter">ommail: Mail Output Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ommysql.html"
+                        title="next chapter">ommysql: MySQL Database Output Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/ommongodb.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/ommongodb.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ommysql.html" title="ommysql: MySQL Database Output Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ommail.html" title="ommail: Mail Output Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" >Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

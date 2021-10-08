@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Parser Modules &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Modules" href="index.html" />
+    <link rel="next" title="pmciscoios" href="pmciscoios.html" />
+    <link rel="prev" title="imuxsock: Unix Socket Input" href="imuxsock.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pmciscoios.html" title="pmciscoios"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imuxsock.html" title="imuxsock: Unix Socket Input"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="parser-modules">
+<h1>Parser Modules<a class="headerlink" href="#parser-modules" title="Permalink to this headline">¶</a></h1>
+<p>Parser modules are used to parse message content, once the message has
+been received. They can be used to process custom message formats or
+invalidly formatted messages. For details, please see the <a class="reference internal" href="../../concepts/messageparser.html"><em>rsyslog
+message parser documentation</em></a>.</p>
+<p>The current modules are currently provided as part of rsyslog:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pmciscoios.html">pmciscoios</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmciscoios.html#parser-parameters">Parser Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmciscoios.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pmlastmsg.html">pmlastmsg: last message repeated n times</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pmnull.html">pmnull: Syslog Null Parser Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmnull.html#parser-parameters">Parser Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmnull.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pmrfc3164.html">pmrfc3164: Parse RFC3164-formatted messages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmrfc3164.html#parser-parameters">Parser Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmrfc3164.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pmrfc3164sd.html">pmrfc3164sd: Parse RFC5424 structured data inside RFC3164 messages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pmrfc5424.html">pmrfc5424: Parse RFC5424-formatted messages</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imuxsock.html"
+                        title="previous chapter">imuxsock: Unix Socket Input</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pmciscoios.html"
+                        title="next chapter">pmciscoios</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/idx_parser.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/idx_parser.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pmciscoios.html" title="pmciscoios"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imuxsock.html" title="imuxsock: Unix Socket Input"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

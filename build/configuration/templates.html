@@ -1,0 +1,725 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Templates &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="rsyslog Properties" href="properties.html" />
+    <link rel="prev" title="Basic Structure" href="basic_structure.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="properties.html" title="rsyslog Properties"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="basic_structure.html" title="Basic Structure"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="templates">
+<h1>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h1>
+<p>Templates are a key feature of rsyslog. They allow to specify any format
+a user might want. They are also used for dynamic file name generation.
+Every output in rsyslog uses templates - this holds true for files, user
+messages and so on. The database writer expects its template to be a
+proper SQL statement - so this is highly customizable too. You might ask
+how does all of this work when no templates at all are specified. Good
+question ;). The answer is simple, though. Templates are compatible with the
+stock syslogd formats which are hardcoded into rsyslogd. So if no template is
+specified, we use one of those hardcoded templates. Search for
+&#8220;template_&#8221; in rsconf.c and you will find the hardcoded ones.</p>
+<p>Templates are specified by template() statements. They can also be
+specified via $template legacy statements.</p>
+<p><strong>Note: key elements of templates are rsyslog properties.</strong> See the
+<a class="reference internal" href="properties.html"><em>rsyslog properties reference</em></a> for a list of which
+are available.</p>
+<div class="section" id="template-processing">
+<h2>Template processing<a class="headerlink" href="#template-processing" title="Permalink to this headline">¶</a></h2>
+<p>Due to lack of standarization regarding logs formats, when a template is
+specified it&#8217;s supposed to include HEADER, as defined in <a class="reference external" href="https://tools.ietf.org/html/rfc5424">RFC5424</a></p>
+<p>It&#8217;s very important to have this in mind, and also how to understand how
+<a class="reference external" href="http://www.rsyslog.com/doc/syslog_parsing.html">rsyslog parsing</a> works</p>
+<p>For example, if MSG field is set to &#8220;this:is a message&#8221; and no HOSTNAME,
+neither TAG are specified, outgoing parser will split the message as:</p>
+<div class="highlight-python"><div class="highlight"><pre>TAG:this:
+MSG:is a message
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-template-statement">
+<h2>The template() statement<a class="headerlink" href="#the-template-statement" title="Permalink to this headline">¶</a></h2>
+<p>The template() statement is used to define templates. Note that it is a
+<strong>static</strong> statement, that means all templates are defined when rsyslog
+reads the config file. As such, templates are not affected by
+if-statements or config nesting.</p>
+<p>The basic structure of the template statement is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">template</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In addition to this simpler syntax, list templates (to be described
+below) support an extended syntax:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(parameters) { list-descriptions }
+</pre></div>
+</div>
+<p>Each template has a parameter <strong>name</strong>, which specifies the template
+name, and a parameter <strong>type</strong>, which specifies the template type. The
+name parameter must be unique, and behaviour is unpredictable if it is
+not. The <strong>type</strong> parameter specifies different template types.
+Different types simply enable different ways to specify the template
+content. The template type <strong>does not</strong> affect what an (output) plugin
+can do with it. So use the type that best fits your needs (from a config
+writing point of view!). The following types are available:</p>
+<ul class="simple">
+<li>list</li>
+<li>subtree</li>
+<li>string</li>
+<li>plugin</li>
+</ul>
+<p>The various types are described below.</p>
+<div class="section" id="list">
+<h3>list<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the template is generated by a list of constant and
+variable statements. These follow the template spec in curly braces.
+This type is also primarily meant for use with structure-aware outputs,
+like ommongodb. However, it also works perfectly with text-based
+outputs. We recommend to use this mode if more complex property
+substitutions need to be done. In that case, the list-based template
+syntax is much clearer than the simple string-based one.</p>
+<p>The list template contains the template header (with <strong>type=&#8221;list&#8221;</strong>)
+and is followed by <strong>constant</strong> and <strong>property</strong> statements, given in
+curly braces to signify the template statement they belong to. As the
+name says, <strong>constant</strong> statements describe constant text and
+<strong>property</strong> describes property access. There are many options to
+<strong>property</strong>, described further below. Most of these options are used to
+extract only partial property contents or to modify the text obtained
+(like to change its case to upper or lower case, only).</p>
+<p>To grasp the idea, an actual sample is:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;tpl1&quot; type=&quot;list&quot;) {
+    constant(value=&quot;Syslog MSG is: &#39;&quot;)
+    property(name=&quot;msg&quot;)
+    constant(value=&quot;&#39;, &quot;)
+    property(name=&quot;timereported&quot; dateFormat=&quot;rfc3339&quot; caseConversion=&quot;lower&quot;)
+    constant(value=&quot;\n&quot;)
+    }
+</pre></div>
+</div>
+<p>This sample is probably primarily targeted at the usual file-based
+output.</p>
+<div class="section" id="constant-statement">
+<h4>constant statement<a class="headerlink" href="#constant-statement" title="Permalink to this headline">¶</a></h4>
+<p>This provides a way to specify constant text. The text is used
+literally. It is primarily intended for text-based output, so that some
+constant text can be included. For example, if a complex template is
+built for file output, one usually needs to finish it by a newline,
+which can be introduced by a constant statement. Here is an actual
+sample of that use case from the rsylsog testbench:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;outfmt&quot; type=&quot;list&quot;) {
+    property(name=&quot;$!usr!msgnum&quot;)
+    constant(value=&quot;\n&quot;)
+}
+</pre></div>
+</div>
+<p>The following escape sequences are recognized inside the constant text:</p>
+<ul class="simple">
+<li>\\ - single backslash</li>
+<li>\n - LF</li>
+<li>\ooo - (three octal digits) - represents character with this
+numerical value (e.g. \101 equals &#8220;A&#8221;). Note that three octal digits
+must be given (in contrast to some languages, where between one and
+three are valid). While we support octal notation, we recommend to
+use hex notation as this is better known.</li>
+<li>\xhh - (where h is a hex digit) - represents character with this
+numerical value (e.g. \x41 equals &#8220;A&#8221;). Note that two hexadecimal
+digits must be given (in contrast to some languages where one or two
+are valid).</li>
+<li>... some others ... list needs to be extended</li>
+</ul>
+<p>Note: if an unsupported character follows a backslash, this is treated
+as an error. Behaviour is unpredictable in this case.</p>
+<p>To aid usage of the same template both for text-based outputs and
+structured ones, constant text without an &#8220;outname&#8221; parameter will be
+ignored when creating the name/value tree for structured outputs. So if
+you want to supply some constant text e.g. to mongodb, you must include
+an outname, as can be seen here:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;outfmt&quot; type=&quot;list&quot;) {
+    property(name=&quot;$!usr!msgnum&quot;)
+    constant(value=&quot;\n&quot; outname=&quot;IWantThisInMyDB&quot;)
+}
+</pre></div>
+</div>
+<p>The &#8220;constant&#8221; statement supports the following parameters:</p>
+<ul class="simple">
+<li>value - the constant value to use</li>
+<li>outname - output field name (for structured outputs)</li>
+</ul>
+</div>
+<div class="section" id="property-statement">
+<h4>property statement<a class="headerlink" href="#property-statement" title="Permalink to this headline">¶</a></h4>
+<p>This statement is used to include property text. It can access all
+properties. Also, options permit to specify picking only part of a
+property or modifying it. It supports the following parameters:</p>
+<ul>
+<li><p class="first">name - the name of the property to access</p>
+</li>
+<li><p class="first">outname - output field name (for structured outputs)</p>
+</li>
+<li><p class="first">dateformat - date format to use (only for date-related properties)</p>
+</li>
+<li><p class="first">date.inUTC - date shall be shown in UTC (please note that this
+requires a bit more performance due to the necessary conversions)
+Available since 8.18.0.</p>
+</li>
+<li><p class="first">caseconversion - permits to convert case of the text. Supported
+values are &#8220;lower&#8221; and &#8220;upper&#8221;</p>
+</li>
+<li><p class="first">controlcharacters - specifies how to handle control characters.
+Supported values are &#8220;escape&#8221;, which escapes them, &#8220;space&#8221;, which
+replaces them by a single space, and &#8220;drop&#8221;, which simply removes
+them from the string.</p>
+</li>
+<li><p class="first">securepath - used for creating pathnames suitable for use in dynafile
+templates</p>
+</li>
+<li><p class="first">format - specify format on a field basis. Supported values are:</p>
+<ul class="simple">
+<li>&#8220;<a class="reference external" href="property_replacer.html#csv">csv</a>&#8221; for use when csv-data is
+generated</li>
+<li>&#8220;<a class="reference external" href="property_replacer.html#json">json</a>&#8221; which formats proper
+json content (but without a field header)</li>
+<li>&#8220;<a class="reference external" href="property_replacer.html#jsonf">jsonf</a>&#8221; which formats as a
+complete json field</li>
+<li>&#8220;<a class="reference external" href="property_replacer.html#jsonr">jsonr</a>&#8221; which avoids double
+escaping the value but makes it safe for a json field</li>
+<li>&#8220;<a class="reference external" href="property_replacer.html#jsonfr">jsonfr</a>&#8221; which is the
+combination of &#8220;jsonf&#8221; and &#8220;jsonr&#8221;.</li>
+</ul>
+</li>
+<li><p class="first">position.from - obtain substring starting from this position (1 is
+the first position)</p>
+</li>
+<li><p class="first">position.to - obtain substring up to this position</p>
+</li>
+<li><p class="first">position.relativeToEnd - the from and to position is relative to the
+end of the string instead of the usual start of string. (available
+since rsyslog v7.3.10)</p>
+</li>
+<li><p class="first">fixedwidth - changes behaviour of position.to so that it pads the
+source string with spaces up to the value of position.to if the source
+string is shorter. &#8220;on&#8221; or &#8220;off&#8221; (default) (available since rsyslog
+v8.13.0)</p>
+</li>
+<li><dl class="first docutils">
+<dt>compressspace - compresses multiple spaces (US-ASCII SP character) inside the</dt>
+<dd><p class="first last">string to a single one. This compression happens at a very late
+stage in processing. Most importantly, it happens after substring
+extraction, so the <strong>position.from</strong> and <strong>position.to</strong> positions
+are <strong>NOT</strong> affected by this option. (available since v8.18.0).</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">field.number - obtain this field match</p>
+</li>
+<li><p class="first">field.delimiter - decimal value of delimiter character for field
+extraction</p>
+</li>
+<li><p class="first">regex.expression - expression to use</p>
+</li>
+<li><p class="first">regex.type - either ERE or BRE</p>
+</li>
+<li><p class="first">regex.nomatchmode - what to do if we have no match</p>
+</li>
+<li><p class="first">regex.match - match to use</p>
+</li>
+<li><p class="first">regex.submatch - submatch to use</p>
+</li>
+<li><p class="first">droplastlf - drop a trailing LF, if it is present</p>
+</li>
+<li><p class="first">mandatory - signifies a field as mandatory. If set to &#8220;on&#8221;, this
+field will always be present in data passed to structured outputs,
+even if it is empty. If &#8220;off&#8221; (the default) empty fields will not be
+passed to structured outputs. This is especially useful for outputs
+that support dynamic schemas (like ommongodb).</p>
+</li>
+<li><p class="first">spifno1stsp - expert options for RFC3164 template processing</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="subtree">
+<h3>subtree<a class="headerlink" href="#subtree" title="Permalink to this headline">¶</a></h3>
+<p>Available since rsyslog 7.1.4</p>
+<p>In this case, the template is generated based on a complete (CEE)
+subtree. This type of template is most useful for outputs that know how
+to process hierarchical structure, like ommongodb. With that type, the
+parameter <strong>subtree</strong> must be specified, which tells which subtree to
+use. For example template(name=&#8221;tpl1&#8221; type=&#8221;subtree&#8221; subtree=&#8221;$!&#8221;)
+includes all CEE data, while template(name=&#8221;tpl2&#8221; type=&#8221;subtree&#8221;
+subtree=&#8221;$!usr!tpl2&#8221;) includes only the subtree starting at $!usr!tpl2.
+The core idea when using this type of template is that the actual data
+is prefabricated via set and unset script statements, and the resulting
+structure is then used inside the template. This method MUST be used if
+a complete subtree needs to be placed <em>directly</em> into the object&#8217;s root.
+With all other template types, only subcontainers can be generated. Note
+that subtree type can also be used with text-based outputs, like omfile.
+HOWEVER, you do not have any capability to specify constant text, and as
+such cannot include line breaks. As a consequence, using this template
+type for text outputs is usually only useful for debugging or very
+special cases (e.g. where the text is interpreted by a JSON parser later
+on).</p>
+<div class="section" id="use-case">
+<h4>Use case<a class="headerlink" href="#use-case" title="Permalink to this headline">¶</a></h4>
+<p>A typical use case is to first create a custom subtree and then include
+it into the template, like in this small example:</p>
+<div class="highlight-python"><div class="highlight"><pre>set $!usr!tpl2!msg = $msg;
+set $!usr!tpl2!dataflow = field($msg, 58, 2);
+template(name=&quot;tpl2&quot; type=&quot;subtree&quot; subtree=&quot;$!usr!tpl2&quot;)
+</pre></div>
+</div>
+<p>Here, we assume that $msg contains various fields, and the data from a
+field is to be extracted and stored - together with the message - as
+field content.</p>
+</div>
+</div>
+<div class="section" id="string">
+<h3>string<a class="headerlink" href="#string" title="Permalink to this headline">¶</a></h3>
+<p>This closely resembles the legacy template statement. It has a mandatory
+parameter <strong>string</strong>, which holds the template string to be applied. A
+template string is a mix of constant text and replacement variables (see
+property replacer). These variables are taken from message or other
+dynamic content when the final string to be passed to a plugin is
+generated. String-based templates are a great way to specify textual
+content, especially if no complex manipulation to properties is
+necessary.</p>
+<p>This is a sample for a string-based template:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;tpl3&quot; type=&quot;string&quot;
+         string=&quot;%TIMESTAMP:::date-rfc3339% %HOSTNAME% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n&quot;
+        )
+</pre></div>
+</div>
+<p>The text between percent signs (&#8216;%&#8217;) is interpreted by the rsyslog
+<a class="reference internal" href="property_replacer.html"><em>property replacer</em></a>. In a nutshell,
+it contains the property to use as well as options for formatting
+and further processing. This is very similar to what the <code class="docutils literal"><span class="pre">property</span></code>
+object in list templates does (it actually is just a different language to
+express most of the same things).</p>
+<p>Everything outside of the percent signs is constant text. In the
+above case, we have mostly spaces between the property values. At the
+end of the string, an escape sequence is used.</p>
+<p>Escape sequences permit to specify nonprintable characters. They work
+very similar to escape sequences in C and many other languages. They
+are initiated by the backslash characters and followed by one or more
+characters that specify the actual character. For example \7 is the
+US-ASCII BEL character and \n is a newline. The set is similar to
+what C and perl support, but a bit more limited.</p>
+</div>
+<div class="section" id="plugin">
+<h3>plugin<a class="headerlink" href="#plugin" title="Permalink to this headline">¶</a></h3>
+<p>In this case, the template is generated by a plugin (which is then
+called a &#8220;strgen&#8221; or &#8220;string generator&#8221;). The format is fixed as it is
+coded. While this is inflexible, it provides superior performance, and
+is often used for that reason (not that &#8220;regular&#8221; templates are slow -
+but in very demanding environments that &#8220;last bit&#8221; can make a
+difference). Refer to the plugin&#8217;s documentation for further details.
+For this type, the parameter <strong>plugin</strong> must be specified and must
+contain the name of the plugin as it identifies itself. Note that the
+plugin must be loaded prior to being used inside a template.
+Config example:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">template(name=&quot;tpl4&quot;</span> <span class="pre">type=&quot;plugin&quot;</span> <span class="pre">plugin=&quot;mystrgen&quot;)</span></code></div></blockquote>
+</div>
+<div class="section" id="options">
+<h3>options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
+<p>The &lt;options&gt; part is optional. It carries options influencing the
+template as a whole and is a part of the template parameters. See details
+below. Be sure NOT to mistake template options with property options -
+the latter ones are processed by the property replacer and apply to a
+SINGLE property, only (and not the whole template).
+Template options are case-insensitive. Currently defined are:</p>
+<p><strong>option.sql</strong> - format the string suitable for a SQL statement in MySQL
+format. This will replace single quotes (&#8220;&#8217;&#8221;) and the backslash
+character by their backslash-escaped counterpart (&#8220;\&#8217;&#8221; and &#8220;\\&#8221;)
+inside each field. Please note that in MySQL configuration, the
+<code class="docutils literal"><span class="pre">NO_BACKSLASH_ESCAPES</span></code> mode must be turned off for this format to work
+(this is the default).</p>
+<p><strong>option.stdsql</strong> - format the string suitable for a SQL statement that
+is to be sent to a standards-compliant sql server. This will replace
+single quotes (&#8220;&#8217;&#8221;) by two single quotes (&#8220;&#8217;&#8216;&#8221;) inside each field. You
+must use stdsql together with MySQL if in MySQL configuration the
+<code class="docutils literal"><span class="pre">NO_BACKSLASH_ESCAPES</span></code> is turned on.</p>
+<p><strong>option.json</strong> - format the string suitable for a json statement. This
+will replace single quotes (&#8220;&#8217;&#8221;) by two single quotes (&#8220;&#8217;&#8216;&#8221;) inside each
+field.</p>
+<p><strong>option.casesensitive</strong> - treat property name references as case
+sensitive. The default is &#8220;off&#8221;, where all property name references are
+first converted to lowercase during template definition. With this
+option turned &#8220;on&#8221;, property names are looked up as defined in the
+template. Use this option if you have JSON (<code class="docutils literal"><span class="pre">$!*</span></code>), local (<code class="docutils literal"><span class="pre">!.*</span></code>),
+or global (<code class="docutils literal"><span class="pre">$!\\*</span></code>) properties which container uppercase letters. The
+normal Rsyslog properties are case-insensitive, so this option is not
+needed for properly referencing those properties.</p>
+<p>The use the options <strong>option.sql</strong>, <strong>option.stdsql</strong>, and
+<strong>option.json</strong> are mutually exclusive. Using more than one at the same
+time can cause unpredictable behaviour.</p>
+<p>Either the <strong>sql</strong> or <strong>stdsql</strong>&nbsp;option <strong>must</strong> be specified when a
+template is used for writing to a database, otherwise injection might
+occur. Please note that due to the unfortunate fact that several vendors
+have violated the sql standard and introduced their own escape methods,
+it is impossible to have a single option doing all the work.&nbsp; So you
+yourself must make sure you are using the right format. <strong>If you choose
+the wrong one, you are still vulnerable to sql injection.</strong>
+Please note that the database writer <em>checks</em> that the sql option is
+present in the template. If it is not present, the write database action
+is disabled. This is to guard you against accidentally forgetting it and
+then becoming vulnerable to SQL injection. The sql option can also be
+useful with files - especially if you want to import them into a
+database on another machine for performance reasons. However, do NOT use
+it if you do not have a real need for it - among others, it takes some
+toll on the processing time. Not much, but on a really busy system you
+might notice it.</p>
+<p>The default template for the write to database action has the sql option
+set. As we currently support only MySQL and the sql option matches the
+default MySQL configuration, this is a good choice. However, if you have
+turned on <code class="docutils literal"><span class="pre">NO_BACKSLASH_ESCAPES</span></code> in your MySQL config, you need to
+supply a template with the stdsql option. Otherwise you will become
+vulnerable to SQL injection.</p>
+<div class="highlight-python"><div class="highlight"><pre>template (name=&quot;TraditionalFormat&quot; type=&quot;string&quot;
+string=&quot;%timegenerated% %HOSTNAME% %syslogtag%%msg%\\n&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="standard-template-for-writing-to-files">
+<h4>Standard Template for Writing to Files<a class="headerlink" href="#standard-template-for-writing-to-files" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;FileFormat&quot; type=&quot;list&quot;) {
+    property(name=&quot;timestamp&quot; dateFormat=&quot;rfc3339&quot;)
+    constant(value=&quot; &quot;)
+    property(name=&quot;hostname&quot;)
+    constant(value=&quot; &quot;)
+    property(name=&quot;syslogtag&quot;)
+    property(name=&quot;msg&quot; spifno1stsp=&quot;on&quot; )
+    property(name=&quot;msg&quot; droplastlf=&quot;on&quot; )
+    constant(value=&quot;\n&quot;)
+    }
+</pre></div>
+</div>
+<p>The equivalent string template looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;FileFormat&quot; type=&quot;string&quot;
+         string= &quot;%TIMESTAMP% %HOSTNAME% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n&quot;
+        )
+</pre></div>
+</div>
+<p>Note that the template string itself must be on a single line.</p>
+</div>
+<div class="section" id="standard-template-for-forwarding-to-a-remote-host-rfc3164-mode">
+<h4>Standard Template for Forwarding to a Remote Host (RFC3164 mode)<a class="headerlink" href="#standard-template-for-forwarding-to-a-remote-host-rfc3164-mode" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;ForwardFormat&quot; type=&quot;list&quot;) {
+    constant(value=&quot;&lt;&quot;)
+    property(name=&quot;pri&quot;)
+    constant(value=&quot;&gt;&quot;)
+    property(name=&quot;timestamp&quot; dateFormat=&quot;rfc3339&quot;)
+    constant(value=&quot; &quot;)
+    property(name=&quot;hostname&quot;)
+    constant(value=&quot; &quot;)
+    property(name=&quot;syslogtag&quot; position.from=&quot;1&quot; position.to=&quot;32&quot;)
+    property(name=&quot;msg&quot; spifno1stsp=&quot;on&quot; )
+    property(name=&quot;msg&quot;)
+    }
+</pre></div>
+</div>
+<p>The equivalent string template looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;forwardFormat&quot; type=&quot;string&quot;
+         string=&quot;&lt;%PRI%&gt;%TIMESTAMP:::date-rfc3339% %HOSTNAME% %syslogtag:1:32%%msg:::sp-if-no-1st-sp%%msg%&quot;
+        )
+</pre></div>
+</div>
+<p>Note that the template string itself must be on a single line.</p>
+</div>
+<div class="section" id="standard-template-for-write-to-the-mysql-database">
+<h4>Standard Template for write to the MySQL database<a class="headerlink" href="#standard-template-for-write-to-the-mysql-database" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;StdSQLformat&quot; type=&quot;list&quot; option.sql=&quot;on&quot;) {
+        constant(value=&quot;insert into SystemEvents (Message, Facility, FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag)&quot;)
+        constant(value=&quot; values (&#39;&quot;)
+        property(name=&quot;msg&quot;)
+        constant(value=&quot;&#39;, &quot;)
+        property(name=&quot;syslogfacility&quot;)
+        constant(value=&quot;, &#39;&quot;)
+        property(name=&quot;hostname&quot;)
+        constant(value=&quot;&#39;, &quot;)
+        property(name=&quot;syslogpriority&quot;)
+        constant(value=&quot;, &#39;&quot;)
+        property(name=&quot;timereported&quot; dateFormat=&quot;mysql&quot;)
+        constant(value=&quot;&#39;, &#39;&quot;)
+        property(name=&quot;timegenerated&quot; dateFormat=&quot;mysql&quot;)
+        constant(value=&quot;&#39;, &quot;)
+        property(name=&quot;iut&quot;)
+        constant(value=&quot;, &#39;&quot;)
+        property(name=&quot;syslogtag&quot;)
+        constant(value=&quot;&#39;)&quot;)
+        }
+</pre></div>
+</div>
+<p>The equivalent string template looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>template(name=&quot;stdSQLformat&quot; type=&quot;string&quot; option.sql=&quot;on&quot;
+         string=&quot;insert into SystemEvents (Message, Facility, FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag) values (&#39;%msg%&#39;, %syslogfacility%, &#39;%HOSTNAME%&#39;, %syslogpriority%, &#39;%timereported:::date-mysql%&#39;, &#39;%timegenerated:::date-mysql%&#39;, %iut%, &#39;%syslogtag%&#39;)&quot;
+        )
+</pre></div>
+</div>
+<p>Note that the template string itself must be on a single line.</p>
+</div>
+<div class="section" id="creating-dynamic-file-names-for-omfile">
+<h4>Creating Dynamic File Names for omfile<a class="headerlink" href="#creating-dynamic-file-names-for-omfile" title="Permalink to this headline">¶</a></h4>
+<p>Templates can be used to generate actions with dynamic file names.
+For example, if you would like to split syslog messages from different hosts
+to different files (one per host), you can define the following template:</p>
+<div class="highlight-python"><div class="highlight"><pre>template (name=&quot;DynFile&quot; type=&quot;string&quot; string=&quot;/var/log/system-%HOSTNAME%.log&quot;)
+</pre></div>
+</div>
+<p>Legacy example:</p>
+<div class="highlight-python"><div class="highlight"><pre>$template DynFile,&quot;/var/log/system-%HOSTNAME%.log&quot;
+</pre></div>
+</div>
+<p>This template can then be used when defining an action. It
+will result in something like &#8220;/var/log/system-localhost.log&#8221;</p>
+</div>
+</div>
+</div>
+<div class="section" id="legacy-format">
+<h2>legacy format<a class="headerlink" href="#legacy-format" title="Permalink to this headline">¶</a></h2>
+<p>In pre v6-versions of rsyslog, you need to use the <code class="docutils literal"><span class="pre">$template</span></code>
+statement to configure templates. They provide the equivalent to string-
+and plugin-based templates. The legacy syntax continuous to work in v7,
+however we recommend to avoid legacy format for newly written config
+files. Legacy and current config statements can coexist within the same
+config file.</p>
+<p>The general format is</p>
+<div class="highlight-python"><div class="highlight"><pre>$template name,param[,options]
+</pre></div>
+</div>
+<p>where &#8220;name&#8221; is the template name and
+&#8220;param&#8221; is a single parameter that specifies template content. The
+optional &#8220;options&#8221; part is used to set template options.</p>
+<div class="section" id="id1">
+<h3>string<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The parameter is the same string that with the current-style format you
+specify in the <strong>string</strong> parameter, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre>$template strtpl,&quot;PRI: %pri%, MSG: %msg%\n&quot;
+</pre></div>
+</div>
+<p>Note that list templates are not available in legacy format, so you need
+to use complex property replacer constructs to do complex things.</p>
+</div>
+<div class="section" id="id2">
+<h3>plugin<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>This is equivalent to the &#8220;plugin&#8221;-type template directive. Here, the
+parameter is the plugin name, with an equal sign prepended. An example
+is:</p>
+<div class="highlight-python"><div class="highlight"><pre>$template plugintpl,=myplugin
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="reserved-template-names">
+<h2>Reserved Template Names<a class="headerlink" href="#reserved-template-names" title="Permalink to this headline">¶</a></h2>
+<p>Template names beginning with &#8220;RSYSLOG_&#8221; are reserved for rsyslog use.
+Do NOT use them if, otherwise you may receive a conflict in the future
+(and quite unpredictable behaviour). There is a small set of pre-defined
+templates that you can use without the need to define it:</p>
+<ul class="simple">
+<li><strong>RSYSLOG_TraditionalFileFormat</strong> - the &#8220;old style&#8221; default log file
+format with low-precision timestamps</li>
+<li><strong>RSYSLOG_FileFormat</strong> - a modern-style logfile format similar to
+TraditionalFileFormat, both with high-precision timestamps and
+timezone information</li>
+<li><strong>RSYSLOG_TraditionalForwardFormat</strong> - the traditional forwarding format
+with low-precision timestamps. Most useful if you send&nbsp;messages to
+other syslogd&#8217;s or rsyslogd below version 3.12.5.</li>
+<li><strong>RSYSLOG_SysklogdFileFormat</strong> - sysklogd compatible log file format. If
+used with options: <code class="docutils literal"><span class="pre">$SpaceLFOnReceive</span> <span class="pre">on</span></code>,
+<code class="docutils literal"><span class="pre">$EscapeControlCharactersOnReceive</span> <span class="pre">off</span></code>,
+<code class="docutils literal"><span class="pre">$DropTrailingLFOnReception</span> <span class="pre">off</span></code>, the log format will conform to sysklogd log format.</li>
+<li><strong>RSYSLOG_ForwardFormat</strong> - a new high-precision forwarding format very
+similar to the traditional one, but with high-precision timestamps
+and timezone information. Recommended to be used when sending
+messages to rsyslog 3.12.5 or above.</li>
+<li><strong>RSYSLOG_SyslogProtocol23Format</strong> - the format specified in IETF&#8217;s
+internet-draft ietf-syslog-protocol-23, which is assumed to become
+the new syslog standard RFC. This format includes several
+improvements. The rsyslog message parser understands this format, so
+you can use it together with all relatively recent versions of
+rsyslog. Other syslogd&#8217;s may get hopelessly confused if receiving
+that format, so check before you use it. Note that the format is
+unlikely to change when the final RFC comes out, but this may happen.</li>
+<li><strong>RSYSLOG_DebugFormat</strong> - a special format used for troubleshooting
+property problems. This format is meant to be written to a log file.
+Do <strong>not</strong> use for production or remote forwarding.</li>
+</ul>
+<div class="section" id="legacy-string-based-template-samples">
+<h3>Legacy String-based Template Samples<a class="headerlink" href="#legacy-string-based-template-samples" title="Permalink to this headline">¶</a></h3>
+<p>This section provides some default templates in legacy format, as used
+in rsyslog previous to version 6. Note that this format is still
+supported, so there is no hard need to upgrade existing configurations.
+However, it is strongly recommended that the legacy constructs are not
+used when crafting new templates. Note that each $template statement is
+on a <strong>single</strong> line, but probably broken across several lines for
+display purposes by your browsers. Lines are separated by empty lines.
+Keep in mind, that line breaks are important in legacy format.</p>
+<div class="highlight-python"><div class="highlight"><pre>$template FileFormat,&quot;%TIMESTAMP:::date-rfc3339% %HOSTNAME% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n&quot;
+$template TraditionalFileFormat,&quot;%TIMESTAMP% %HOSTNAME% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n&quot;
+$template ForwardFormat,&quot;&lt;%PRI%&gt;%TIMESTAMP:::date-rfc3339% %HOSTNAME% %syslogtag:1:32%%msg:::sp-if-no-1st-sp%%msg%&quot;
+$template TraditionalForwardFormat,&quot;&lt;%PRI%&gt;%TIMESTAMP% %HOSTNAME% %syslogtag:1:32%%msg:::sp-if-no-1st-sp%%msg%&quot;
+$template StdSQLFormat,&quot;insert into SystemEvents (Message, Facility, FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag) values (&#39;%msg%&#39;, %syslogfacility%, &#39;%HOSTNAME%&#39;, %syslogpriority%, &#39;%timereported:::date-mysql%&#39;, &#39;%timegenerated:::date-mysql%&#39;, %iut%, &#39;%syslogtag%&#39;)&quot;,SQL``
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.rsyslog.com/how-to-bind-a-template/">How to bind a
+template</a></li>
+<li><a class="reference external" href="http://www.rsyslog.com/adding-the-bom-to-a-message/">Adding the BOM to a
+message</a></li>
+<li><a class="reference external" href="http://www.rsyslog.com/article60/">How to separate log files by host name of the sending
+device</a></li>
+</ul>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a> project.
+Copyright © 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 2 or higher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Templates</a><ul>
+<li><a class="reference internal" href="#template-processing">Template processing</a></li>
+<li><a class="reference internal" href="#the-template-statement">The template() statement</a><ul>
+<li><a class="reference internal" href="#list">list</a><ul>
+<li><a class="reference internal" href="#constant-statement">constant statement</a></li>
+<li><a class="reference internal" href="#property-statement">property statement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#subtree">subtree</a><ul>
+<li><a class="reference internal" href="#use-case">Use case</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#string">string</a></li>
+<li><a class="reference internal" href="#plugin">plugin</a></li>
+<li><a class="reference internal" href="#options">options</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#standard-template-for-writing-to-files">Standard Template for Writing to Files</a></li>
+<li><a class="reference internal" href="#standard-template-for-forwarding-to-a-remote-host-rfc3164-mode">Standard Template for Forwarding to a Remote Host (RFC3164 mode)</a></li>
+<li><a class="reference internal" href="#standard-template-for-write-to-the-mysql-database">Standard Template for write to the MySQL database</a></li>
+<li><a class="reference internal" href="#creating-dynamic-file-names-for-omfile">Creating Dynamic File Names for omfile</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#legacy-format">legacy format</a><ul>
+<li><a class="reference internal" href="#id1">string</a></li>
+<li><a class="reference internal" href="#id2">plugin</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reserved-template-names">Reserved Template Names</a><ul>
+<li><a class="reference internal" href="#legacy-string-based-template-samples">Legacy String-based Template Samples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basic_structure.html"
+                        title="previous chapter">Basic Structure</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="properties.html"
+                        title="next chapter">rsyslog Properties</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/templates.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/templates.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="properties.html" title="rsyslog Properties"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="basic_structure.html" title="Basic Structure"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

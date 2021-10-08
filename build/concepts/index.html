@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Concepts &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="next" title="Understanding rsyslog Queues" href="queues.html" />
+    <link rel="prev" title="troubleshooting problems" href="../troubleshooting/troubleshoot.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="queues.html" title="Understanding rsyslog Queues"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../troubleshooting/troubleshoot.html" title="troubleshooting problems"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="concepts">
+<h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<p>This chapter describes important rsyslog concepts and objects. Where
+appropriate, it also refers to configurations settings to affect
+the respective objects.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="queues.html">Understanding rsyslog Queues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="queues.html#where-are-queues-used">Where are Queues Used?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="queues.html#queue-modes">Queue Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="queues.html#limiting-the-queue-size">Limiting the Queue Size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="queues.html#worker-thread-pools">Worker Thread Pools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="queues.html#filled-up-queues">Filled-Up Queues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="janitor.html">The Janitor Process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="messageparser.html">Message parsers in rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="messageparser.html#intro">Intro</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messageparser.html#what-are-message-parsers">What are message parsers?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messageparser.html#how-are-message-parsers-used">How are message parsers used?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messageparser.html#which-message-parsers-are-available">Which message parsers are available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messageparser.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multi_ruleset.html">Multiple Rulesets in rsyslog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#what-is-a-ruleset">What is a Ruleset?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#what-does-to-bind-to-a-ruleset-mean">What does &#8220;To bind to a Ruleset&#8221; mean?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#why-are-rulesets-important-for-different-parser-configurations">Why are rulesets important for different parser configurations?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#can-i-use-a-different-ruleset-as-the-default">Can I use a different Ruleset as the default?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#rulesets-and-queues">Rulesets and Queues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#performance">Performance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi_ruleset.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="netstrm_drvr.html">NetStream Drivers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="netstrm_drvr.html#current-network-stream-drivers">Current Network Stream Drivers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../troubleshooting/troubleshoot.html"
+                        title="previous chapter">troubleshooting problems</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="queues.html"
+                        title="next chapter">Understanding rsyslog Queues</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/concepts/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/concepts/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="queues.html" title="Understanding rsyslog Queues"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../troubleshooting/troubleshoot.html" title="troubleshooting problems"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Parser &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="timezone" href="timezone.html" />
+    <link rel="prev" title="Input" href="input.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="timezone.html" title="timezone"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="input.html" title="Input"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="parser">
+<h1>Parser<a class="headerlink" href="#parser" title="Permalink to this headline">¶</a></h1>
+<p id="cfgobj-input"><span id="index-0"></span>The <code class="docutils literal"><span class="pre">parser</span></code> object, as its name suggests, describes message parsers.
+Message parsers have a standard parser name, which can be used by simply
+loading the parser module. Only when specific parameters need to be set
+the parser object is needed.</p>
+<p>In that case, it is used to define a new parser name (aka &#8220;parser definition&#8221;)
+which configures this name to use the parser module with set parameters.
+This is important as the ruleset() object does not support to set parser
+parameters. Instead, if parameters are needed, a proper parser name must
+be defined using the parser() object. A parser name defined via the
+parser() object can be used whereever a parser name can occur.</p>
+<p>Note that not all message parser modules are supported in the parser()
+object. The reason is that many do not have any user-selectable
+parameters and as such, there is no point in issuing a parser() object
+for them.</p>
+<p>The parser object has different parameters:</p>
+<ul class="simple">
+<li>those that apply to all parser and are generally available for
+all of them. These are documented below.</li>
+<li>parser-specific parameters. These are specific to a certain parser
+module. They are documented by the <a class="reference internal" href="modules/idx_parser.html"><em>parser module</em></a>
+in question.</li>
+</ul>
+<div class="section" id="general-parser-parameters">
+<h2>General Parser Parameters<a class="headerlink" href="#general-parser-parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">name &lt;name-string&gt;</code></dt>
+<dd><p><em>Mandatory</em></p>
+<p>This names the parser. Names starting with &#8220;rsyslog.&#8221; are reserved for
+rsyslog use and must not be used. It is suggested to replace &#8220;rsyslog.&#8221;
+with &#8220;custom.&#8221; and keep the rest of the name descriptive. However, this
+is not enforced and just good practice.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">type &lt;type-string&gt;</code></dt>
+<dd><p><em>Mandatory</em></p>
+<p>The <code class="docutils literal"><span class="pre">&lt;type-string&gt;</span></code> is a string identifying the parser module as given
+it each module&#8217;s documentation. Do not mistake the parser module name
+with its default parser name.
+For example, the
+<a class="reference internal" href="modules/pmciscoios.html"><em>Cisco IOS message parser module</em></a> parser module
+name is &#8220;pmciscoios&#8221;, whereas it&#8217;s default parser name is
+&#8220;rsyslog.pmciscoios&#8221;.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="samples">
+<h2>Samples<a class="headerlink" href="#samples" title="Permalink to this headline">¶</a></h2>
+<p>The following example creates a custom parser definition and uses it within a ruleset:</p>
+<div class="highlight-python"><div class="highlight"><pre>load(module=&quot;pmciscoios&quot;)
+parser(name=&quot;custom.pmciscoios.with_origin&quot; type=&quot;pmciscoios&quot;)
+
+ruleset(name=&quot;myRuleset&quot; parser=&quot;custom.pmciscoios.with_origin&quot;) {
+   ... do something here ...
+}
+</pre></div>
+</div>
+<p>The following example uses multiple parsers within a ruleset without a parser object (the order is important):</p>
+<div class="highlight-python"><div class="highlight"><pre>load(module=&quot;pmaixforwardedfrom&quot;)
+load(module=&quot;pmlastmsg&quot;)
+
+ruleset(name=&quot;myRuleset&quot; parser=[&quot;rsyslog.lastline&quot;,&quot;rsyslog.aixforwardedfrom&quot;,&quot;rsyslog.rfc5424&quot;,&quot;rsyslog.rfc3164&quot;]) {
+   ... do something here ...
+}
+</pre></div>
+</div>
+<p>A more elaborate example can also be found in the
+<a class="reference internal" href="modules/pmciscoios.html"><em>Cisco IOS message parser module</em></a> documentation.</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+2 or higher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Parser</a><ul>
+<li><a class="reference internal" href="#general-parser-parameters">General Parser Parameters</a></li>
+<li><a class="reference internal" href="#samples">Samples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="input.html"
+                        title="previous chapter">Input</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="timezone.html"
+                        title="next chapter">timezone</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/parser.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/parser.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="timezone.html" title="timezone"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="input.html" title="Input"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imrelp: RELP Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imsolaris: Solaris Input Module" href="imsolaris.html" />
+    <link rel="prev" title="imptcp: Plain TCP Syslog" href="imptcp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imsolaris.html" title="imsolaris: Solaris Input Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imptcp.html" title="imptcp: Plain TCP Syslog"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imrelp-relp-input-module">
+<h1>imrelp: RELP Input Module<a class="headerlink" href="#imrelp-relp-input-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; imrelp</strong></p>
+<p><strong>Author: Rainer Gerhards</strong></p>
+<p>Provides the ability to receive syslog messages via the reliable RELP
+protocol. This module requires <a class="reference external" href="http://www.librelp.com">librelp</a> to
+be present on the system. From the user&#8217;s point of view, imrelp works
+much like imtcp or imgssapi, except that no message loss can occur.
+Please note that with the currently supported relp protocol version, a
+minor message duplication may occur if a network connection between the
+relp client and relp server breaks after the client could successfully
+send some messages but the server could not acknowledge them. The window
+of opportunity is very slim, but in theory this is possible. Future
+versions of RELP will prevent this. Please also note that rsyslogd may
+lose a few messages if rsyslog is shutdown while a network connection to
+the server is broken and could not yet be recovered. Future version of
+RELP support in rsyslog will prevent that. Please note that both
+scenarios also exists with plain tcp syslog. RELP, even with the small
+nits outlined above, is a much more reliable solution than plain tcp
+syslog and so it is highly suggested to use RELP instead of plain tcp.
+Clients send messages to the RELP server via omrelp.</p>
+<div class="section" id="module-parameters">
+<h2>Module Parameters<a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">Ruleset &lt;name&gt;</code></dt>
+<dt>
+<code class="descname">(requires v7.5.0+)</code></dt>
+<dd><p>Binds the specified ruleset to <strong>all</strong> RELP listeners. This can be
+overridden at the instance level.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="input-parameters">
+<h2>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">Port &lt;port&gt;</code></dt>
+<dd><p>Starts a RELP server on selected port</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">Name &lt;name&gt;</code></dt>
+<dd><p>Sets a name for the inputname property of this listener.  If no name
+is set, &#8220;imrelp&#8221; is used by default.  Setting a name is not strictly
+necessary, but can be useful to apply filtering based on which input
+the message was received from.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">Ruleset &lt;name&gt;</code></dt>
+<dd><p>Binds specified ruleset to this listener.  This overrides the
+module-level Ruleset parameter.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">tls on/off</code></dt>
+<dd><p><em>Default is off</em></p>
+<p>If set to &#8220;on&#8221;, the RELP connection will be encrypted by TLS, so
+that the data is protected against observers. Please note that both
+the client and the server must have set TLS to either &#8220;on&#8221; or &#8220;off&#8221;.
+Other combinations lead to unpredictable results.</p>
+<p><em>Attention when using GnuTLS 2.10.x or older</em></p>
+<p>Versions older than GnuTLS 2.10.x may cause a crash (Segfault) under
+certain circumstances. Most likely when an imrelp inputs and an
+omrelp output is configured. The crash may happen when you are
+receiving/sending messages at the same time. Upgrade to a newer
+version like GnuTLS 2.12.21 to solve the problem.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">tls.compression on/off</code></dt>
+<dd><p><em>Default is off</em></p>
+<p>The controls if the TLS stream should be compressed (zipped). While
+this increases CPU use, the network bandwidth should be reduced. Note
+that typical text-based log records usually compress rather well.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">tls.dhbits &lt;integer&gt;</code></dt>
+<dd><p>This setting controls how many bits are used for Diffie-Hellman key
+generation. If not set, the librelp default is used. For secrity
+reasons, at least 1024 bits should be used. Please note that the
+number of bits must be supported by GnuTLS. If an invalid number is
+given, rsyslog will report an error when the listener is started. We
+do this to be transparent to changes/upgrades in GnuTLS (to check at
+config processing time, we would need to hardcode the supported bits
+and keep them in sync with GnuTLS - this is even impossible when
+custom GnuTLS changes are made...).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tls.permittedPeer">
+<code class="descclassname">tls.</code><code class="descname">permittedPeer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tls.permittedPeer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Peer Places access restrictions on this listener. Only peers which
+have been listed in this parameter may connect. The validation bases
+on the certificate the remote peer presents.</p>
+<p>The <em>peer</em> parameter lists permitted certificate fingerprints. Note
+that it is an array parameter, so either a single or multiple
+fingerprints can be listed. When a non-permitted peer connects, the
+refusal is logged together with it&#8217;s fingerprint. So if the
+administrator knows this was a valid request, he can simple add the
+fingerprint by copy and paste from the logfile to rsyslog.conf.</p>
+<p>To specify multiple fingerprints, just enclose them in braces like
+this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">tls</span><span class="o">.</span><span class="n">permittedPeer</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SHA1:...1&quot;</span><span class="p">,</span> <span class="s2">&quot;SHA1:....2&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To specify just a single peer, you can either specify the string
+directly or enclose it in braces.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">tls.authMode &lt;mode&gt;</code></dt>
+<dd><p>Sets the mode used for mutual authentication.</p>
+<p>Supported values are either &#8220;<em>fingerprint</em>&#8221; or &#8220;<em>name&#8221;</em>.</p>
+<p>Fingerprint mode basically is what SSH does. It does not require a
+full PKI to be present, instead self-signed certs can be used on all
+peers. Even if a CA certificate is given, the validity of the peer
+cert is NOT verified against it. Only the certificate fingerprint
+counts.</p>
+<p>In &#8220;name&#8221; mode, certificate validation happens. Here, the matching is
+done against the certificate&#8217;s subjectAltName and, as a fallback, the
+subject common name. If the certificate contains multiple names, a
+match on any one of these names is considered good and permits the
+peer to talk to rsyslog.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">tls.prioritystring &lt;string&gt;</code></dt>
+<dd><p>This parameter permits to specify the so-called &#8220;priority string&#8221; to
+GnuTLS. This string gives complete control over all crypto
+parameters, including compression setting. For this reason, when the
+prioritystring is specified, the &#8220;tls.compression&#8221; parameter has no
+effect and is ignored.</p>
+<p>Full information about how to construct a priority string can be
+found in the GnuTLS manual. At the time of this writing, this
+information was contained in <a class="reference external" href="http://gnutls.org/manual/html_node/Priority-Strings.html">section 6.10 of the GnuTLS
+manual</a>.</p>
+<p><strong>Note: this is an expert parameter.</strong> Do not use if you do not
+exactly know what you are doing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive on/off</code></dt>
+<dd><p>enable of disable keep-alive packets at the tcp socket layer. The
+default is to disable them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Probes &lt;number&gt;</code></dt>
+<dd><p><em>Default is 0</em></p>
+<p>The number of unacknowledged probes to send before considering the
+connection dead and notifying the application layer. The default, 0,
+means that the operating system defaults are used. This has only
+effect if keep-alive is enabled. The functionality may not be
+available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Interval &lt;number&gt;</code></dt>
+<dd><p><em>Default is 0</em></p>
+<p>The interval between subsequent keepalive probes, regardless of what
+the connection has exchanged in the meantime. The default, 0, means
+that the operating system defaults are used. This has only effect if
+keep-alive is enabled. The functionality may not be available on all
+platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Time &lt;number&gt;</code></dt>
+<dd><p><em>Default is 0</em></p>
+<p>The interval between the last data packet sent (simple ACKs are not
+considered data) and the first keepalive probe; after the connection
+is marked to need keepalive, this counter is not used any further.
+The default, 0, means that the operating system defaults are used.
+This has only effect if keep-alive is enabled. The functionality may
+not be available on all platforms.</p>
+</dd></dl>
+
+<div class="section" id="caveats-known-bugs">
+<h3>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>see description</li>
+<li>To obtain the remote system&#8217;s IP address, you need to have at least
+librelp 1.0.0 installed. Versions below it return the hostname
+instead of the IP address.</li>
+</ul>
+</div>
+<div class="section" id="sample">
+<h3>Sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h3>
+<p>This sets up a RELP server on port 20514.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imrelp&quot;) # needs to be done just once
+input(type=&quot;imrelp&quot; port=&quot;20514&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-configuration-directives">
+<h3>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>InputRELPServerBindRuleset &lt;name&gt; (available in 6.3.6+) equivalent
+to: RuleSet</li>
+<li>InputRELPServerRun &lt;port&gt;
+equivalent to: Port</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>Caveats/Known Bugs<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>To obtain the remote system&#8217;s IP address, you need to have at least
+librelp 1.0.0 installed. Versions below it return the hostname
+instead of the IP address.</li>
+<li>Contrary to other inputs, the ruleset can only be bound to all
+listeners, not specific ones. This issue is resolved in the
+non-Legacy configuration format.</li>
+</ul>
+<p><strong>Sample:</strong></p>
+</div>
+<div class="section" id="legacy-sample">
+<h3>Legacy Sample<a class="headerlink" href="#legacy-sample" title="Permalink to this headline">¶</a></h3>
+<p>This sets up a RELP server on port 20514.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imrelp # needs to be done just once
+$InputRELPServerRun 20514
+</pre></div>
+</div>
+<p>This documentation is part of the
+<a class="reference external" href="http://www.rsyslog.com/">rsyslog</a> project.
+Copyright © 2008-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imrelp: RELP Input Module</a><ul>
+<li><a class="reference internal" href="#module-parameters">Module Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a><ul>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#sample">Sample</a></li>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a></li>
+<li><a class="reference internal" href="#id1">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#legacy-sample">Legacy Sample</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imptcp.html"
+                        title="previous chapter">imptcp: Plain TCP Syslog</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imsolaris.html"
+                        title="next chapter">imsolaris: Solaris Input Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imrelp.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imrelp.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imsolaris.html" title="imsolaris: Solaris Input Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imptcp.html" title="imptcp: Plain TCP Syslog"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

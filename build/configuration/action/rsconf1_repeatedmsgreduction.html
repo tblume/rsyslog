@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>$RepeatedMsgReduction &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Legacy Action-Specific Configuration Statements" href="index.html" />
+    <link rel="next" title="$omfileForceChown" href="rsconf1_omfileforcechown.html" />
+    <link rel="prev" title="$ActionResumeInterval" href="rsconf1_actionresumeinterval.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rsconf1_omfileforcechown.html" title="$omfileForceChown"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rsconf1_actionresumeinterval.html" title="$ActionResumeInterval"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" >Legacy Configuration Directives</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="index.html" accesskey="U">Legacy Action-Specific Configuration Statements</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="repeatedmsgreduction">
+<h1>$RepeatedMsgReduction<a class="headerlink" href="#repeatedmsgreduction" title="Permalink to this headline">¶</a></h1>
+<p><strong>Type:</strong> global configuration directive</p>
+<p><strong>Default:</strong> off</p>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>This directive models old sysklogd legacy. <strong>Note that many people,
+including the rsyslog authors, consider this to be a misfeature.</strong> See
+<em>Discussion</em> below to learn why.</p>
+<p>This directive specifies whether or not repeated messages should be
+reduced (this is the &#8220;Last line repeated n times&#8221; feature). If set to
+<em>on</em>, repeated messages are reduced. If kept at <em>off</em>, every message is
+logged. In very early versions of rsyslog, this was controlled by the
+<em>-e</em> command line option.</p>
+</div>
+<div class="section" id="what-is-a-repeated-message">
+<h2>What is a repeated message<a class="headerlink" href="#what-is-a-repeated-message" title="Permalink to this headline">¶</a></h2>
+<p>For a message to be classified as repeated, the following properties
+must be <strong>identical</strong>:</p>
+<ul class="simple">
+<li>msg</li>
+<li>hostname</li>
+<li>procid</li>
+<li>appname</li>
+</ul>
+<p>Note that rate-limiters are usually applied to specific input sources
+or processes. So first and foremost the input source must be the same
+to classify a messages as a duplicated.</p>
+<p>You may want to check out
+<a class="reference external" href="http://www.rsyslog.com/first-try-to-test-rate-limiting/">testing rsyslog ratelimiting</a>
+for some extra information on the per-process ratelimiting.</p>
+</div>
+<div class="section" id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Very old versions of rsyslog did not have the ability to include the
+repeated message itself within the repeat message.</li>
+<li>Versions before 7.3.2 applied repeat message reduction to the output
+side. This had some implications:<ul>
+<li>they did not account for the actual message origin, so two processes
+emitting an equally-looking messsage triggered the repeated message
+reduction code</li>
+<li>repeat message processing could be set on a per-action basis, which
+has switched to per-input basis for 7.3.2 and above</li>
+</ul>
+</li>
+<li>While turning this feature on can save some space in logs, most log analysis
+tools need to see the repeated messages, they can&#8217;t handle the
+&#8220;last message repeated&#8221; format.</li>
+<li>This is a feature that worked decades ago when logs were small and reviewed
+by a human, it fails badly on high volume logs processed by tools.</li>
+</ul>
+</div>
+<div class="section" id="sample">
+<h2>Sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h2>
+<p>This turns on repeated message reduction (<strong>not</strong> recommended):</p>
+<div class="highlight-python"><div class="highlight"><pre>$RepeatedMsgReduction on    # do not log repeated messages
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2007-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 2 or higher.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">$RepeatedMsgReduction</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#what-is-a-repeated-message">What is a repeated message</a></li>
+<li><a class="reference internal" href="#discussion">Discussion</a></li>
+<li><a class="reference internal" href="#sample">Sample</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rsconf1_actionresumeinterval.html"
+                        title="previous chapter">$ActionResumeInterval</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rsconf1_omfileforcechown.html"
+                        title="next chapter">$omfileForceChown</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/action/rsconf1_repeatedmsgreduction.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/action/rsconf1_repeatedmsgreduction.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rsconf1_omfileforcechown.html" title="$omfileForceChown"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rsconf1_actionresumeinterval.html" title="$ActionResumeInterval"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" >Legacy Configuration Directives</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="index.html" >Legacy Action-Specific Configuration Statements</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

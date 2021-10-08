@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>IP Address Anonymization Module (mmanon) &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Message Modification Modules" href="idx_messagemod.html" />
+    <link rel="next" title="mmcount" href="mmcount.html" />
+    <link rel="prev" title="Message Modification Modules" href="idx_messagemod.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mmcount.html" title="mmcount"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="idx_messagemod.html" title="Message Modification Modules"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" accesskey="U">Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ip-address-anonymization-module-mmanon">
+<h1>IP Address Anonymization Module (mmanon)<a class="headerlink" href="#ip-address-anonymization-module-mmanon" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name</strong>: mmanon</p>
+<p><strong>Author:</strong> Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Available since</strong>: 7.3.7</p>
+<p><strong>Description</strong>:</p>
+<p>The mmanon module permits to anonymize IP addresses. It is a message
+modification module that actually changes the IP address inside the
+message, so after calling mmanon, the original message can no longer be
+obtained. Note that anonymization will break digital signatures on the
+message, if they exist.</p>
+<p><em>How are IP-Addresses defined?</em></p>
+<p>We assume that an IP address consists of four octets in dotted notation,
+where each of the octets has a value between 0 and 255, inclusively.</p>
+<p><strong>Module Configuration Parameters</strong>:</p>
+<p>Currently none.</p>
+<p><strong>Action Confguration Parameters</strong>:</p>
+<ul>
+<li><p class="first"><strong>mode</strong> - default &#8220;rewrite&#8221;</p>
+<p>There exists the &#8220;simple&#8221; and &#8220;rewrite&#8221; mode. In simple mode, only
+octets as whole can be anonymized and the length of the message is
+never changed. This means that when the last three octets of the
+address 10.1.12.123 are anonymized, the result will be 10.0.00.000.
+This means that the length of the original octets is still visible
+and may be used to draw some privacy-evasive conclusions. This mode
+is slightly faster than &#8220;overwrite&#8221; mode, and this may matter in high
+throughput environments.
+The default &#8220;rewrite&#8221; mode will do full anonymization of any number
+of bits and it will also normlize the address, so that no information
+about the original IP address is available. So in the above example,
+10.1.12.123 would be anonymized to 10.0.0.0.</p>
+</li>
+<li><p class="first"><strong>ipv4.bits</strong> - default &#8220;16&#8221;</p>
+<p>This set the number of bits that should be anonymized (bits are from
+the right, so lower bits are anonymized first). This setting permits
+to save network information while still anonymizing user-specific
+data. The more bits you discard, the better the anonymization
+obviously is. The default of 16 bits reflects what German data
+privacy rules consider as being sufficinetly anonymized. We assume,
+this can also be used as a rough but conservative guideline for other
+countries.
+Note: when in simple mode, only bits on a byte boundary can be
+specified. As such, any value other than 8, 16, 24 or 32 is invalid.
+If an invalid value is given, it is rounded to the next byte boundary
+(so we favor stronger anonymization in that case). For example, a bit
+value of 12 will become 16 in simple mode (an error message is also
+emitted).</p>
+</li>
+<li><p class="first"><strong>replacementChar</strong> - default &#8220;x&#8221;</p>
+<p>In simple mode, this sets the character that the to-be-anonymized
+part of the IP address is to be overwritten with. In rewrite mode,
+this parameter is <strong>not permitted</strong>, as in this case we need not
+necessarily rewrite full octets. As such, the anonymized part is
+always zero-filled and replacementChar is of no use. If it is
+specified, an error message is emitted and the parameter ignored.</p>
+</li>
+</ul>
+<p><strong>See Also</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.rsyslog.com/howto-anonymize-messages-that-go-to-specific-files/">Howto anonymize messages that go to specific
+files</a></li>
+</ul>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<ul class="simple">
+<li><strong>only IPv4</strong> is supported</li>
+</ul>
+<p><strong>Samples:</strong></p>
+<p>In this snippet, we write one file without anonymization and another one
+with the message anonymized. Note that once mmanon has run, access to
+the original message is no longer possible (execept if stored in user
+variables before anonymization).</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;mmanon&quot;)
+action(type=&quot;omfile&quot; file=&quot;/path/to/non-anon.log&quot;)
+action(type=&quot;mmanon&quot;)
+action(type=&quot;omfile&quot; file=&quot;/path/to/anon.log&quot;)
+</pre></div>
+</div>
+<p>This next snippet is almost identical to the first one, but here we
+anonymize the full IPv4 address. Note that by modifying the number of
+bits, you can anonymize different parts of the address. Keep in mind
+that in simple mode (used here), the bit values must match IP address
+bytes, so for IPv4 only the values 8, 16, 24 and 32 are valid. Also, in
+this example the replacement is done via asterisks instead of lower-case
+&#8220;x&#8221;-letters. Also keep in mind that &#8220;replacementChar&#8221; can only be set in
+simple mode.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;mmanon&quot;) action(type=&quot;omfile&quot; file=&quot;/path/to/non-anon.log&quot;)
+action(type=&quot;mmanon&quot; ipv4.bits=&quot;32&quot; mode=&quot;simple&quot; replacementChar=&quot;\*&quot;)
+action(type=&quot;omfile&quot; file=&quot;/path/to/anon.log&quot;)
+</pre></div>
+</div>
+<p>The next snippet is also based on the first one, but anonimzes an &#8220;odd&#8221;
+number of bits, 12. The value of 12 is used by some folks as a
+compromise between keeping privacy and still permiting to gain some more
+in-depth insight from log files. Note that anonymizing 12 bits may be
+insufficient to fulfill legal requirements (if such exist).</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;mmanon&quot;) action(type=&quot;omfile&quot; file=&quot;/path/to/non-anon.log&quot;)
+action(type=&quot;mmanon&quot; ipv4.bits=&quot;12&quot;) action(type=&quot;omfile&quot;
+file=&quot;/path/to/anon.log&quot;)
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2013 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="idx_messagemod.html"
+                        title="previous chapter">Message Modification Modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mmcount.html"
+                        title="next chapter">mmcount</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/mmanon.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/mmanon.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mmcount.html" title="mmcount"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="idx_messagemod.html" title="Message Modification Modules"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" >Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

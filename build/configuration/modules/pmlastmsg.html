@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmlastmsg: last message repeated n times &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Parser Modules" href="idx_parser.html" />
+    <link rel="next" title="pmnull: Syslog Null Parser Module" href="pmnull.html" />
+    <link rel="prev" title="pmciscoios" href="pmciscoios.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pmnull.html" title="pmnull: Syslog Null Parser Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmciscoios.html" title="pmciscoios"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_parser.html" accesskey="U">Parser Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pmlastmsg-last-message-repeated-n-times">
+<h1>pmlastmsg: last message repeated n times<a class="headerlink" href="#pmlastmsg-last-message-repeated-n-times" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; pmlastmsg</strong></p>
+<p><strong>Module Type:&nbsp;&nbsp;&nbsp; parser module</strong></p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Available Since</strong>: 5.5.6</p>
+<p><strong>Description</strong>:</p>
+<p>Some syslogds are known to emit severily malformed messages with content
+&#8220;last message repeated n times&#8221;. These messages can mess up message
+reception, as they lead to wrong interpretation with the standard
+RFC3164 parser. Rather than trying to fix this issue in pmrfc3164, we
+have created a new parser module specifically for these messages. The
+reason is that some processing overhead is involved in processing these
+messages (they must be recognized) and we would not like to place this
+toll on every user but only on those actually in need of the feature.
+Note that the performance toll is not large &#8211; but if you expect a very
+high message rate with tenthousands of messages per second, you will
+notice a difference.</p>
+<p>This module should be loaded first inside <a class="reference external" href="messageparser.html">rsyslog&#8217;s parser
+chain</a>. It processes all those messages that
+contain a PRI, then none or some spaces and then the exact text
+(case-insensitive) &#8220;last message repeated n times&#8221; where n must be an
+integer. All other messages are left untouched.</p>
+<p><strong>Configuration Directives</strong>:</p>
+<p>There do not currently exist any configuration directives for this
+module.</p>
+<p><strong>Examples:</strong></p>
+<p>This example is the typical use case, where some systems emit malformed
+&#8220;repeated msg&#8221; messages. Other than that, the default RFC5424 and
+RFC3164 parsers should be used. Note that when a parser is specified,
+the default parser chain is removed, so we need to specify all three
+parsers. We use this together with the default ruleset.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad pmlastmsg   # This parser is not a built-in module.
+
+# Note that parsers are tried in the order they appear in
+# rsyslog.conf, so put pmlastmsg first.
+
+$RulesetParser rsyslog.lastline
+
+# As we have removed the default parser chain, we need to add the
+# default parsers as well.
+$RulesetParser rsyslog.rfc5424
+$RulesetParser rsyslog.rfc3164
+
+# Here come the typical rules, like... \*.\* /path/to/file.log
+</pre></div>
+</div>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<p>currently none</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.</p>
+<p>Copyright © 2010-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmciscoios.html"
+                        title="previous chapter">pmciscoios</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pmnull.html"
+                        title="next chapter">pmnull: Syslog Null Parser Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/pmlastmsg.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/pmlastmsg.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pmnull.html" title="pmnull: Syslog Null Parser Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmciscoios.html" title="pmciscoios"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_parser.html" >Parser Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gtls Network Stream Driver &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="NetStream Drivers" href="netstrm_drvr.html" />
+    <link rel="next" title="Example Use Cases" href="../examples/index.html" />
+    <link rel="prev" title="ptcp Network Stream Driver" href="ns_ptcp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../examples/index.html" title="Example Use Cases"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ns_ptcp.html" title="ptcp Network Stream Driver"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Concepts</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="netstrm_drvr.html" accesskey="U">NetStream Drivers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gtls-network-stream-driver">
+<h1>gtls Network Stream Driver<a class="headerlink" href="#gtls-network-stream-driver" title="Permalink to this headline">¶</a></h1>
+<p>This network stream driver implements a TLS
+protected transport via the <a class="reference external" href="http://www.gnu.org/software/gnutls/">GnuTLS
+library</a>.</p>
+<p><strong>Available since:</strong> 3.19.0 (suggested minimum 3.19.8 and above)</p>
+<p>Supported Driver Modes</p>
+<ul class="simple">
+<li>0 - unencrypted trasmission (just like <a class="reference external" href="ns_ptcp.html">ptcp</a> driver)</li>
+<li>1 - TLS-protected operation</li>
+</ul>
+<p>Note: mode 0 does not provide any benefit over the ptcp driver. This
+mode exists for technical reasons, but should not be used. It may be
+removed in the future.</p>
+<p>Supported Authentication Modes</p>
+<ul class="simple">
+<li>anon - anonymous authentication as described in IETF&#8217;s
+draft-ietf-syslog-transport-tls-12 Internet draft</li>
+<li>x509/fingerprint - certificate fingerprint authentication as
+described in IETF&#8217;s draft-ietf-syslog-transport-tls-12 Internet draft</li>
+<li>x509/certvalid - certificate validation only</li>
+<li>x509/name - certificate validation and subject name authentication as
+described in IETF&#8217;s draft-ietf-syslog-transport-tls-12 Internet draft</li>
+</ul>
+<p>Note: &#8220;anon&#8221; does not permit to authenticate the remote peer. As such,
+this mode is vulnerable to man in the middle attacks as well as
+unauthorized access. It is recommended NOT to use this mode.</p>
+<p>x509/certvalid is a nonstandard mode. It validates the remote peers
+certificate, but does not check the subject name. This is weak
+authentication that may be useful in scenarios where multiple devices
+are deployed and it is sufficient proof of authenticity when their
+certificates are signed by the CA the server trusts. This is better than
+anon authentication, but still not recommended. <strong>Known Problems</strong></p>
+<p>Even in x509/fingerprint mode, both the client and server certificate
+currently must be signed by the same root CA. This is an artifact of the
+underlying GnuTLS library and the way we use it. It is expected that we
+can resolve this issue in the future.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ns_ptcp.html"
+                        title="previous chapter">ptcp Network Stream Driver</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../examples/index.html"
+                        title="next chapter">Example Use Cases</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/concepts/ns_gtls.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/concepts/ns_gtls.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../examples/index.html" title="Example Use Cases"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ns_ptcp.html" title="ptcp Network Stream Driver"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Concepts</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="netstrm_drvr.html" >NetStream Drivers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

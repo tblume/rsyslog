@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fields Extraction Module (mmfields) &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Message Modification Modules" href="idx_messagemod.html" />
+    <link rel="next" title="JSON/CEE Structured Content Extraction Module (mmjsonparse)" href="mmjsonparse.html" />
+    <link rel="prev" title="Support module for external message modification modules" href="mmexternal.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mmjsonparse.html" title="JSON/CEE Structured Content Extraction Module (mmjsonparse)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mmexternal.html" title="Support module for external message modification modules"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" accesskey="U">Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fields-extraction-module-mmfields">
+<h1>Fields Extraction Module (mmfields)<a class="headerlink" href="#fields-extraction-module-mmfields" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; mmfields</strong></p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Available since</strong>: 7.5.1</p>
+<p><strong>Description</strong>:</p>
+<p>The mmfield module permits to extract fields. It is an alternate to
+using the property replacer field extraction capabilities. In contrast
+to the property replacer, all fields are extracted as once and stored
+inside the structured data part (more precisely: they become Lumberjack
+[JSON] properties).</p>
+<p>Using this module is of special advantage if a field-based log format is
+to be processed, like for example CEF <strong>and</strong> and either a large number
+of fields is needed or a specific field is used multiple times inside
+filters. In these scenarios, mmfields potentially offers better
+performance than the property replacer of the RainerScript field
+extraction method. The reason is that mmfields extracts all fields as
+one big sweep, whereas the other methods extract fields individually,
+which requires multiple passes through the same data. On the other hand,
+adding field content to the rsyslog property dictionary also has some
+overhead, so for high-performance use cases it is suggested to do some
+performance testing before finally deciding which method to use. This is
+most important if only a smaller subset of the fields is actually
+needed.</p>
+<p>In any case, mmfields provides a very handy and easy to use way to parse
+structured data into a it&#8217;s individual data items. Again, a primiary use
+case was support for CEF (Common Event Format), which is made extremely
+easy to do with this module.</p>
+<p>This module is implemented via the action interface. Thus it can be
+conditionally used depending on some prequisites.</p>
+<p><strong>Module Configuration Parameters</strong>:</p>
+<p>Currently none.</p>
+<p><strong>Action Confguration Parameters</strong>:</p>
+<ul class="simple">
+<li><strong>separator</strong> - separatorChar (default &#8216;,&#8217;)
+This is the character used to separate fields. Currently, only a
+single character is permitted, while the RainerScript method permits
+to specify multi-character separator strings. For CEF, this is not
+required. If there is actual need to support multi-character
+separator strings, support can relatively easy be added. It is
+suggested to request it on the rsyslog mailing list, together with
+the use case - we intend to add functionality only if there is a real
+use case behind the request (in the past we too-often implemented
+things that actually never got used).
+The fields are named f<em>nbr</em>, where <em>nbr</em> is the field number
+starting with one and being incremented for each field.</li>
+<li><strong>jsonRoot</strong> - path (default &#8221;!&#8221;)
+This parameters specifies into which json path the extracted fields
+shall be written. The default is to use the json root object itself.</li>
+</ul>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<ul class="simple">
+<li>Currently none.</li>
+</ul>
+<p><strong>Samples:</strong></p>
+<p>This is a very simple use case where each message is parsed. The default
+separator character of comma is being used.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;mmfields&quot;)
+template(name=&quot;ftpl&quot;
+         type=string
+         string=&quot;%$!%\\n&quot;)
+action(type=&quot;mmfields&quot;)
+action(type=&quot;mmfile&quot;
+       file=&quot;/path/to/logfile&quot;
+       template=&quot;ftpl&quot;)
+</pre></div>
+</div>
+<p>The following sample is similar to the previous one, but this time the
+colon is used as separator and data is written into the &#8220;$!mmfields&#8221;
+json path.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;mmfields&quot;)
+template(name=&quot;ftpl&quot;
+         type=string
+         string=&quot;%$!%\\n&quot;)
+action(type=&quot;mmfields&quot;
+       separator=&quot;:&quot;
+       jsonRoot=&quot;!mmfields&quot;)
+       action(type=&quot;mmfile&quot;
+       file=&quot;/path/to/logfile&quot;
+       template=&quot;ftpl&quot;)
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2013 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mmexternal.html"
+                        title="previous chapter">Support module for external message modification modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mmjsonparse.html"
+                        title="next chapter">JSON/CEE Structured Content Extraction Module (mmjsonparse)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/mmfields.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/mmfields.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mmjsonparse.html" title="JSON/CEE Structured Content Extraction Module (mmjsonparse)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mmexternal.html" title="Support module for external message modification modules"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" >Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

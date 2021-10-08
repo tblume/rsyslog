@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Support module for external message modification modules &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Message Modification Modules" href="idx_messagemod.html" />
+    <link rel="next" title="Fields Extraction Module (mmfields)" href="mmfields.html" />
+    <link rel="prev" title="MaxMind/GeoIP DB lookup (mmdblookup)" href="mmdblookup.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mmfields.html" title="Fields Extraction Module (mmfields)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mmdblookup.html" title="MaxMind/GeoIP DB lookup (mmdblookup)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" accesskey="U">Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="support-module-for-external-message-modification-modules">
+<h1>Support module for external message modification modules<a class="headerlink" href="#support-module-for-external-message-modification-modules" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; mmexternal</strong></p>
+<p><strong>Available since:&nbsp;&nbsp;&nbsp;</strong> 8.3.0</p>
+<p><strong>Author:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Description</strong>:</p>
+<p>This module permits to integrate external message modification plugins
+into rsyslog.</p>
+<p>For details on the interface specification, see rsyslog&#8217;s source in the
+./plugins/external/INTERFACE.md.</p>
+<p><strong>Action Parameters</strong>:</p>
+<ul>
+<li><p class="first"><strong>binary</strong></p>
+<p>The name of the external message modification plugin to be called. This
+can be a full path name.</p>
+</li>
+<li><p class="first"><strong>interface.input</strong></p>
+<p>This can either be &#8220;msg&#8221;, &#8220;rawmsg&#8221; or &#8220;fulljson&#8221;. In case of &#8220;fulljson&#8221;, the
+message object is provided as a json object. Otherwise, the respective
+property is provided. This setting <strong>must</strong> match the external plugin&#8217;s
+expectations. Check the external plugin documentation for what needs to be used.</p>
+</li>
+<li><p class="first"><strong>output</strong></p>
+<p>This is a debug aid. If set, this is a filename where the plugins output
+is logged. Note that the output is also being processed as usual by rsyslog.
+Setting this parameter thus gives insight into the internal processing
+that happens between plugin and rsyslog core.</p>
+</li>
+<li><p class="first"><strong>forcesingleinstance</strong></p>
+<p>This is an expert parameter, just like the equivalent <em>omprog</em> parameter.
+See the message modification plugin&#8217;s documentation if it is needed.</p>
+</li>
+</ul>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<ul class="simple">
+<li>None.</li>
+</ul>
+<p><strong>Sample:</strong></p>
+<p>The following config file snippet is used to write execute an external
+message modification module &#8220;mmexternal.py&#8221;. Note that the path to the
+module is specified here. This is necessary if the module is not in the
+default search path.</p>
+<div class="highlight-python"><div class="highlight"><pre>module (load=&quot;mmexternal&quot;) # needs to be done only once inside the config
+
+action(type=&quot;mmexternal&quot; binary=&quot;/path/to/mmexternal.py&quot;)
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mmdblookup.html"
+                        title="previous chapter">MaxMind/GeoIP DB lookup (mmdblookup)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mmfields.html"
+                        title="next chapter">Fields Extraction Module (mmfields)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/mmexternal.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/mmexternal.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mmfields.html" title="Fields Extraction Module (mmfields)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mmdblookup.html" title="MaxMind/GeoIP DB lookup (mmdblookup)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_messagemod.html" >Message Modification Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

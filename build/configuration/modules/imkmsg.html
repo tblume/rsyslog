@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imkmsg: /dev/kmsg Log Input Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="impstats: Generate Periodic Statistics of Internal Counters" href="impstats.html" />
+    <link rel="prev" title="imklog: Kernel Log Input Module" href="imklog.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="impstats.html" title="impstats: Generate Periodic Statistics of Internal Counters"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="imklog.html" title="imklog: Kernel Log Input Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imkmsg-dev-kmsg-log-input-module">
+<h1>imkmsg: /dev/kmsg Log Input Module<a class="headerlink" href="#imkmsg-dev-kmsg-log-input-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:&nbsp;&nbsp;&nbsp; imkmsg</strong></p>
+<dl class="docutils">
+<dt><strong>Authors:</strong>Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</dt>
+<dd>Milan Bartos &lt;<a class="reference external" href="mailto:mbartos&#37;&#52;&#48;redhat&#46;com">mbartos<span>&#64;</span>redhat<span>&#46;</span>com</a>&gt;</dd>
+</dl>
+<p><strong>Description</strong>:</p>
+<p>Reads messages from the /dev/kmsg structured kernel log and submits them
+to the syslog engine.</p>
+<p>The printk log buffer contains log records. These records are exported
+by /dev/kmsg device as structured data in the following format:
+&#8220;level,sequnum,timestamp;&lt;message text&gt;\n&#8221;
+There could be continuation lines starting with space that contains
+key/value pairs.
+Log messages are parsed as necessary into rsyslog msg_t structure.
+Continuation lines are parsed as json key/value pairs and added into
+rsyslog&#8217;s message json representation.</p>
+<p><strong>Configuration Directives</strong>:</p>
+<p>This module has no configuration directives.</p>
+<p><strong>Caveats/Known Bugs:</strong></p>
+<p>This module can&#8217;t be used together with imklog module. When using one of
+them, make sure the other one is not enabled.</p>
+<p>This is Linux specific module and requires /dev/kmsg device with
+structured kernel logs.</p>
+<p><strong>Sample:</strong></p>
+<p>The following sample pulls messages from the /dev/kmsg log device. All
+parameters are left by default, which is usually a good idea. Please
+note that loading the plugin is sufficient to activate it. No directive
+is needed to start pulling messages.</p>
+<p>$ModLoad imkmsg</p>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2008-2009 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="imklog.html"
+                        title="previous chapter">imklog: Kernel Log Input Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="impstats.html"
+                        title="next chapter">impstats: Generate Periodic Statistics of Internal Counters</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imkmsg.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imkmsg.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="impstats.html" title="impstats: Generate Periodic Statistics of Internal Counters"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="imklog.html" title="imklog: Kernel Log Input Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

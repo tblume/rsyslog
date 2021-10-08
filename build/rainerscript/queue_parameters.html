@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>General Queue Parameters &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="RainerScript" href="index.html" />
+    <link rel="next" title="The rsyslog “call” statement" href="rainerscript_call.html" />
+    <link rel="prev" title="Lookup Tables" href="lookup_tables.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rainerscript_call.html" title="The rsyslog “call” statement"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lookup_tables.html" title="Lookup Tables"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">RainerScript</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="general-queue-parameters">
+<h1>General Queue Parameters<a class="headerlink" href="#general-queue-parameters" title="Permalink to this headline">¶</a></h1>
+<p>Queue parameters can be used together with the following statements:</p>
+<ul class="simple">
+<li><a class="reference internal" href="../configuration/actions.html"><em>action()</em></a></li>
+<li>ruleset()</li>
+<li>main_queue()</li>
+</ul>
+<p>Queues need to be configured in the action or ruleset it should affect.
+If nothing is configured, default values will be used. Thus, the default
+ruleset has only the default main queue. Specific Action queues are not
+set up by default.</p>
+<p>To fully understand queue parameters and how they interact, be sure to
+read the <a class="reference internal" href="../concepts/queues.html"><em>queues</em></a> documentation.</p>
+<ul>
+<li><p class="first"><strong>queue.filename</strong> name
+File name to be used for the queue files. Please note that this is
+actually just the file name. A directory can NOT be specified in this
+parameter. If the files shall be created in a specific directory,
+specify queue.spoolDirectory for this. The filename is used to build
+to complete path for queue files.</p>
+</li>
+<li><p class="first"><strong>queue.spoolDirectory</strong> name
+This is the directory into which queue files will be stored. Note
+that the directory must exist, it is NOT automatically created by
+rsyslog. If no spoolDirectory is specified, the work directory is
+used.</p>
+</li>
+<li><p class="first"><strong>queue.size</strong> number
+This is the maximum size of the queue in number of messages. Note
+that setting the queue size to very small values (roughly below 100
+messages) is not supported and can lead to unpredictable results.
+For more information on the current status of this restriction see
+the <a class="reference external" href="http://www.rsyslog.com/lower-bound-for-queue-sizes/">rsyslog FAQ: &#8220;lower bound for queue
+sizes&#8221;</a>.</p>
+</li>
+<li><p class="first"><strong>queue.dequeuebatchsize</strong> number
+default 16</p>
+</li>
+<li><p class="first"><strong>queue.maxdiskspace</strong> number
+The maximum size that all queue files together will use on disk. Note
+that the actual size may be slightly larger than the configured max,
+as rsyslog never writes partial queue records.</p>
+</li>
+<li><p class="first"><strong>queue.highwatermark</strong> number
+This applies to disk-assisted queues, only. When the queue fills up
+to this number of messages, the queue begins to spool messages to
+disk. Please note that this should not happen as part of usual
+processing, because disk queue mode is very considerably slower than
+in-memory queue mode. Going to disk should be reserved for cases
+where an output action destination is offline for some period.</p>
+</li>
+<li><p class="first"><strong>queue.lowwatermark</strong> number
+default 2000</p>
+</li>
+<li><p class="first"><strong>queue.fulldelaymark</strong> number
+Number of messages when the queue should block delayable messages.
+Messages are NO LONGER PROCESSED until the queue has sufficient space
+again. If a message is delayable depends on the input. For example,
+messages received via imtcp are delayable (because TCP can push back),
+but those received via imudp are not (as UDP does not permit a push back).
+The intent behind this setting is to leave some space in an almost-full
+queue for non-delayable messages, which would be lost if the queue runs
+out of space. Please note that if you use a DA queue, setting the
+fulldelaymark BELOW the highwatermark makes the queue never activate
+disk mode for delayable inputs. So this is probably not what you want.</p>
+</li>
+<li><p class="first"><strong>queue.lightdelaymark</strong> number</p>
+</li>
+<li><p class="first"><strong>queue.discardmark</strong> number
+default 9750</p>
+</li>
+<li><p class="first"><strong>queue.discardseverity</strong> number
+*numerical* severity! default 8 (nothing discarded)</p>
+</li>
+<li><p class="first"><strong>queue.checkpointinterval</strong> number
+Disk queues by default do not update housekeeping structures every time
+the queue writes to disk. This is for performance reasons. In the event of failure,
+data will still be lost (except when data is mangled via the file structures).
+However, disk queues can be set to write bookkeeping information on checkpoints
+(every n records), so that this can be made ultra-reliable, too. If the
+checkpoint interval is set to one, no data can be lost, but the queue is
+exceptionally slow.</p>
+</li>
+<li><p class="first"><strong>queue.syncqueuefiles</strong> on/off (default &#8220;off&#8221;)</p>
+<p>Disk-based queues can be made very reliable by issuing a (f)sync after each
+write operation. This happens when you set the parameter to &#8220;on&#8221;.
+Activating this option has a performance penalty, so it should not
+be turned on without a good reason. Note that the penalty also depends on
+<em>queue.checkpointInterval</em> frequency.</p>
+</li>
+<li><p class="first"><strong>queue.samplinginterval</strong> number</p>
+<p>This option allows queues to be populated by events produced at a specific interval.
+It provides a way to sample data each N events, instead of processing all, in order to reduce resources usage (disk, bandwidth...)
+This feature is available for version 8.23 and above.</p>
+</li>
+<li><p class="first"><strong>queue.type</strong> [FixedArray/LinkedList/<strong>Direct</strong>/Disk]</p>
+</li>
+<li><p class="first"><strong>queue.workerthreads</strong> number
+number of worker threads, default 1, recommended 1</p>
+</li>
+<li><p class="first"><strong>queue.timeoutshutdown</strong> number
+number is timeout in ms (1000ms is 1sec!), default 0 (indefinite)</p>
+</li>
+<li><p class="first"><strong>queue.timeoutactioncompletion</strong> number
+number is timeout in ms (1000ms is 1sec!), default 1000, 0 means
+immediate!</p>
+</li>
+<li><p class="first"><strong>queue.timeoutenqueue</strong> number
+number is timeout in ms (1000ms is 1sec!), default 2000, 0 means
+discard immediate.</p>
+<p>This timeout value is used when the queue is full. If rsyslog cannot
+enqueue a message within the timeout period, the message is discarded.
+Note that this is setting of last resort (assuming defaults are used
+for the queue settings or proper parameters are set): all delayable
+inputs (like imtcp or imfile) have already been pushed back at this
+stage. Also, discarding of lower priority messages (if configured) has
+already happened. So we run into one of these situations if we do not
+timeout quickly enough:</p>
+<ul class="simple">
+<li>if using imuxsock and no systemd journal is involved, the system
+would become unresponsive and most probably a hard reset would be
+required.</li>
+<li>if using imuxsock with imjournal forwarding is active, messages are
+lost because the journal discards them (more agressive than rsyslog does)</li>
+<li>if using imjournal, the journal will buffer messages. If journal
+runs out of configured space, messages will be discarded. So in this
+mode discarding is moved to a bit later place.</li>
+<li>other non-delayable sources like imudp will also loose messages</li>
+</ul>
+<p>So this setting is provided in order to guard against problematic situations,
+which always will result either in message loss or system hang. For
+action queues, one may debate if it would be better to overflow rapidly
+to the main queue. If so desired, this is easy to acomplish by setting
+a very large timeout value. The same, of course, is true for the main
+queue, but you have been warned if you do so!</p>
+<p>In some other words, you can consider this scenario, using default values.
+With all progress blocked (unable to deliver a message):</p>
+<ul>
+<li><p class="first">all delayable inputs (tcp, relp, imfile, imjournal, etc) will block
+indefinantly (assuming queue.lightdelaymark and queue.fulldelaymark
+are set sensible, which they are by default).</p>
+</li>
+<li><p class="first">imudp will be loosing messages because the OS will be dropping them</p>
+</li>
+<li><p class="first">messages arriving via UDP or imuxsock that do make it to rsyslog,
+and that are a severity high enough to not be filtered by
+discardseverity, will block for 2 seconds trying to put the message in
+the queue (in the hope that something happens to make space in the
+queue) and then be dropped to avoid blocking the machine permanently.</p>
+<p>Then the next message to be processed will also be tried for 2 seconds, etc.</p>
+</li>
+<li><p class="first">If this is going into an action queue, the log message will remain
+in the main queue during these 2 seconds, and additional logs that
+arrive will accumulate behind this in the main queue.</p>
+</li>
+</ul>
+</li>
+<li><p class="first"><strong>queue.timeoutworkerthreadshutdown</strong> number
+number is timeout in ms (1000ms is 1sec!), default 60000 (1 minute)</p>
+</li>
+<li><p class="first"><strong>queue.workerthreadminimummessages</strong> number
+default 100</p>
+</li>
+<li><p class="first"><strong>queue.maxfilesize</strong> size_nbr
+default 1m</p>
+</li>
+<li><p class="first"><strong>queue.saveonshutdown</strong> on/<strong>off</strong></p>
+</li>
+<li><p class="first"><strong>queue.dequeueslowdown</strong> number
+number is timeout in microseconds (1000000us is 1sec!), default 0 (no
+delay). Simple rate-limiting!</p>
+</li>
+<li><p class="first"><strong>queue.dequeuetimebegin</strong> number</p>
+</li>
+<li><p class="first"><strong>queue.dequeuetimeend</strong> number</p>
+</li>
+<li><p class="first"><strong>queue.samplinginterval</strong> number
+Sampling interval for action queue. This parameter specifies how many line
+of logs will be dropped before one enqueued. default 0.</p>
+</li>
+</ul>
+<p><strong>Sample:</strong></p>
+<p>The following is a sample of a TCP forwarding action with its own queue.</p>
+<div class="highlight-python"><div class="highlight"><pre>action(type=&quot;omfwd&quot; target=&quot;192.168.2.11&quot; port=&quot;10514&quot; protocol=&quot;tcp&quot;
+       queue.filename=&quot;forwarding&quot; queue.size=&quot;1000000&quot; queue.type=&quot;LinkedList&quot;
+      )
+</pre></div>
+</div>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.
+Copyright © 2013-2014 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer Gerhards</a>
+and <a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL
+version 3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lookup_tables.html"
+                        title="previous chapter">Lookup Tables</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rainerscript_call.html"
+                        title="next chapter">The rsyslog &#8220;call&#8221; statement</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/rainerscript/queue_parameters.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/rainerscript/queue_parameters.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rainerscript_call.html" title="The rsyslog “call” statement"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lookup_tables.html" title="Lookup Tables"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >RainerScript</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

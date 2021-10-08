@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuration &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="next" title="Basic Structure" href="basic_structure.html" />
+    <link rel="prev" title="Welcome to Rsyslog" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="basic_structure.html" title="Basic Structure"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to Rsyslog"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p><strong>Rsyslogd is configured via the rsyslog.conf file</strong>, typically found in
+<code class="docutils literal"><span class="pre">/etc</span></code>. By default, rsyslogd reads the file <code class="docutils literal"><span class="pre">/etc/rsyslog.conf</span></code>.
+This can be changed by a command line option.</p>
+<p>Note that <strong>configurations can be built interactively</strong> via the online
+<a class="reference external" href="http://www.rsyslog.com/rsyslog-configuration-builder/">rsyslog configuration builder</a> tool.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basic_structure.html">Basic Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#quick-overview-of-message-flow-and-objects">Quick overview of message flow and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#processing-principles">Processing Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#configuration-file">Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#statement-types">Statement Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#comments">Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#processing-order">Processing Order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#inputs">Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#outputs">Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_structure.html#rulesets-and-rules">Rulesets and Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="templates.html">Templates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#template-processing">Template processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#the-template-statement">The template() statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#legacy-format">legacy format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#reserved-template-names">Reserved Template Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="properties.html">rsyslog Properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="properties.html#message-properties">Message Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="properties.html#system-properties">System Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="property_replacer.html">The Property Replacer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="property_replacer.html#accessing-properties">Accessing Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="property_replacer.html#further-links">Further Links</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="filters.html">Filter Conditions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#selectors">Selectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#property-based-filters">Property-Based Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#expression-based-filters">Expression-Based Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#bsd-style-blocks">BSD-style Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../rainerscript/index.html">RainerScript</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/data_types.html">Data Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/expressions.html">Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/functions.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/control_structures.html">Control Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/configuration_objects.html">configuration objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/constant_strings.html">Constant Strings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/variable_property_types.html">Variable (Property) types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/lookup_tables.html">Lookup Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/queue_parameters.html">General Queue Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/rainerscript_call.html">The rsyslog &#8220;call&#8221; statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/rainerscript_call_indirect.html">The rsyslog &#8220;call_indirect&#8221; statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rainerscript/global.html">global() configuration object</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="actions.html">Actions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="actions.html#general-action-parameters">General Action Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="actions.html#useful-links">Useful Links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="actions.html#legacy-format">Legacy Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Input</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="input.html#general-input-parameters">General Input Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parser.html">Parser</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#general-parser-parameters">General Parser Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parser.html#samples">Samples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="timezone.html">timezone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="timezone.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timezone.html#sample">Sample</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#templates">Templates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#selector-lines">Selector lines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index_directives.html">Legacy Configuration Directives</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_param_types.html">Configuration Parameter Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global/index.html">Legacy Global Configuration Statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_directives/index.html">Legacy Directives affecting Input Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="action/index.html">Legacy Action-Specific Configuration Statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ruleset/index.html">Ruleset-Specific Legacy Configuration Statements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_output.html">Output Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_input.html">Input Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_parser.html">Parser Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_messagemod.html">Message Modification Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_stringgen.html">String Generator Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/idx_library.html">Library Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/workflow.html">Where are the modules integrated into the Message Flow?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output_channels.html">Output Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="droppriv.html">Dropping privileges in rsyslog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ipv6.html">Notes on IPv6 Handling in Rsyslog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryprov_gcry.html">libgcrypt Log Crypto Provider (gcry)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dyn_stats.html">Dynamic Stats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dyn_stats.html#dyn-stats-configuration">Dyn-stats configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dyn_stats.html#reporting">Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lookup_tables.html">Lookup Tables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lookup_tables.html#types">Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lookup_tables.html#lookup-table-file-format">Lookup Table File Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lookup_tables.html#lookup-table-configuration">Lookup-table configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lookup_tables.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p><a class="reference external" href="http://wiki.rsyslog.com/index.php/Configuration_Samples">Configuration file examples can be found in the rsyslog
+wiki</a>. Also
+keep the <a class="reference external" href="http://www.rsyslog.com/config-snippets/">rsyslog config
+snippets</a> on your mind. These
+are ready-to-use real building blocks for rsyslog configuration.</p>
+<p>There is also one sample file provided together with the documentation
+set. If you do not like to read, be sure to have at least a quick look
+at <a class="reference download internal" href="../_downloads/rsyslog-example.conf" download=""><code class="xref download docutils literal"><span class="pre">rsyslog-example.conf</span></code></a>.</p>
+<p>While rsyslogd contains enhancements over standard syslogd, efforts have
+been made to keep the configuration file as compatible as possible.
+While, for obvious reasons, <a class="reference internal" href="../features.html"><em>enhanced features</em></a> require
+a different config file syntax, rsyslogd should be able to work with a
+standard syslog.conf file. This is especially useful while you are
+migrating from syslogd to rsyslogd.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Welcome to Rsyslog</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basic_structure.html"
+                        title="next chapter">Basic Structure</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/configuration/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="basic_structure.html" title="Basic Structure"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to Rsyslog"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

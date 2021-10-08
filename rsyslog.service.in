@@ -1,0 +1,22 @@
+[Unit]
+Description=System Logging Service
+Requires=syslog.socket
+Requires=var-run.mount
+After=var-run.mount
+Conflicts=syslog-ng.service syslogd.service
+Documentation=man:rsyslogd(8)
+Documentation=http://www.rsyslog.com/doc/
+
+[Service]
+Type=notify
+Environment=RSYSLOGD_PARAMS=
+EnvironmentFile=-/etc/sysconfig/syslog
+ExecStartPre=@sbindir@/rsyslog-service-prepare
+ExecStart=@sbindir@/rsyslogd -n $RSYSLOGD_PARAMS
+ExecReload=/bin/kill -HUP $MAINPID
+StandardOutput=null
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+Alias=syslog.service

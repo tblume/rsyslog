@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RainerScript &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="../configuration/index.html" />
+    <link rel="next" title="Data Types" href="data_types.html" />
+    <link rel="prev" title="Filter Conditions" href="../configuration/filters.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="data_types.html" title="Data Types"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../configuration/filters.html" title="Filter Conditions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" accesskey="U">Configuration</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rainerscript">
+<h1>RainerScript<a class="headerlink" href="#rainerscript" title="Permalink to this headline">¶</a></h1>
+<p><strong>RainerScript is a scripting language specifically designed and
+well-suited for processing network events and configuring event
+processors.</strong>
+It is the prime configuration language used for rsyslog.
+Please note that RainerScript may not be abreviated as rscript,
+because that&#8217;s somebody else&#8217;s trademark.</p>
+<p>Some limited RainerScript support is available since rsyslog 3.12.0
+(for expression support). In v5, &#8220;if .. then&#8221; statements are supported.
+The first full implementation is available since rsyslog v6.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="data_types.html">Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expressions.html">Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#getenv-str">getenv(str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#strlen-str">strlen(str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#tolower-str">tolower(str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#cstr-expr">cstr(expr)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#cnum-expr">cnum(expr)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#wrap-str-wrapper-str">wrap(str, wrapper_str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#wrap-str-wrapper-str-escaper-str">wrap(str, wrapper_str, escaper_str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#replace-str-substr-to-replace-replace-with">replace(str, substr_to_replace, replace_with)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#re-match-expr-re">re_match(expr, re)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#re-extract-expr-re-match-submatch-no-found">re_extract(expr, re, match, submatch, no-found)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#field-str-delim-matchnbr">field(str, delim, matchnbr)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#prifilt-constant">prifilt(constant)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#dyn-inc-bucket-name-litteral-string-str">dyn_inc(bucket_name_litteral_string, str)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#lookup-table-name-litteral-string-key">lookup(table_name_litteral_string, key)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="control_structures.html">Control Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="control_structures.html#if">if</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control_structures.html#if-else-if-else">if/else-if/else</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control_structures.html#foreach">foreach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control_structures.html#call">call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="control_structures.html#continue">continue</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration_objects.html">configuration objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#action">action()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#global">global()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#input">input()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#module">module()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#parser">parser()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_objects.html#timezone">timezone()</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constant_strings.html">Constant Strings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variable_property_types.html">Variable (Property) types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_property_types.html#set"><strong>set</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="variable_property_types.html#unset"><strong>unset</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="variable_property_types.html#reset"><strong>reset</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lookup_tables.html">Lookup Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="queue_parameters.html">General Queue Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rainerscript_call.html">The rsyslog &#8220;call&#8221; statement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rainerscript_call.html#syntax">syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rainerscript_call.html#related-links">related links</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rainerscript_call_indirect.html">The rsyslog &#8220;call_indirect&#8221; statement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rainerscript_call_indirect.html#syntax">syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rainerscript_call_indirect.html#examples">examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rainerscript_call_indirect.html#additional-information">additional information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="global.html">global() configuration object</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../configuration/filters.html"
+                        title="previous chapter">Filter Conditions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="data_types.html"
+                        title="next chapter">Data Types</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/rainerscript/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/rainerscript/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="data_types.html" title="Data Types"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../configuration/filters.html" title="Filter Conditions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" >Configuration</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

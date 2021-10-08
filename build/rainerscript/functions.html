@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Functions &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="RainerScript" href="index.html" />
+    <link rel="next" title="Control Structures" href="control_structures.html" />
+    <link rel="prev" title="Expressions" href="expressions.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="control_structures.html" title="Control Structures"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="expressions.html" title="Expressions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">RainerScript</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="functions">
+<h1>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h1>
+<p>RainerScript supports a currently quite limited set of functions:</p>
+<div class="section" id="getenv-str">
+<h2>getenv(str)<a class="headerlink" href="#getenv-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>like the OS call, returns the value of the environment
+variable, if it exists. Returns an empty string if it does not exist.</p>
+<p>The following example can be used to build a dynamic filter based on
+some environment variable:</p>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre>if $msg contains getenv(&#39;TRIGGERVAR&#39;) then /path/to/errfile
+</pre></div>
+</div>
+</div>
+<div class="section" id="strlen-str">
+<h2>strlen(str)<a class="headerlink" href="#strlen-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>returns the length of the provided string</div></blockquote>
+</div>
+<div class="section" id="tolower-str">
+<h2>tolower(str)<a class="headerlink" href="#tolower-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>converts the provided string into lowercase</div></blockquote>
+</div>
+<div class="section" id="cstr-expr">
+<h2>cstr(expr)<a class="headerlink" href="#cstr-expr" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>converts expr to a string value</div></blockquote>
+</div>
+<div class="section" id="cnum-expr">
+<h2>cnum(expr)<a class="headerlink" href="#cnum-expr" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>converts expr to a number (integer)
+Note: if the expression does not contain a numerical value,
+behaviour is undefined.</div></blockquote>
+</div>
+<div class="section" id="wrap-str-wrapper-str">
+<h2>wrap(str, wrapper_str)<a class="headerlink" href="#wrap-str-wrapper-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>returns the str wrapped with wrapper_str. Eg.</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wrap</span><span class="p">(</span><span class="s2">&quot;foo bar&quot;</span><span class="p">,</span> <span class="s2">&quot;##&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>produces</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s2">&quot;##foo bar##&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="wrap-str-wrapper-str-escaper-str">
+<h2>wrap(str, wrapper_str, escaper_str)<a class="headerlink" href="#wrap-str-wrapper-str-escaper-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>returns the str wrapped with wrapper_str.
+But additionally, any instances of wrapper_str appearing in str would be replaced
+by the escaper_str. Eg.</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wrap</span><span class="p">(</span><span class="s2">&quot;foo&#39;bar&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>produces</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s2">&quot;&#39;foo_bar&#39;&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="replace-str-substr-to-replace-replace-with">
+<h2>replace(str, substr_to_replace, replace_with)<a class="headerlink" href="#replace-str-substr-to-replace-replace-with" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>returns new string with all instances of substr_to_replace replaced
+by replace_with. Eg.</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;foo bar baz&quot;</span><span class="p">,</span> <span class="s2">&quot; b&quot;</span><span class="p">,</span> <span class="s2">&quot;, B&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>produces</p>
+<div class="highlight-python"><div class="highlight"><pre>&quot;foo, Bar, Baz&quot;.
+</pre></div>
+</div>
+</div>
+<div class="section" id="re-match-expr-re">
+<h2>re_match(expr, re)<a class="headerlink" href="#re-match-expr-re" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>returns 1, if expr matches re, 0 otherwise. Uses POSIX ERE.</div></blockquote>
+</div>
+<div class="section" id="re-extract-expr-re-match-submatch-no-found">
+<h2>re_extract(expr, re, match, submatch, no-found)<a class="headerlink" href="#re-extract-expr-re-match-submatch-no-found" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>extracts data from a string (property) via a regular expression match.
+POSIX ERE regular expressions are used. The variable &#8220;match&#8221; contains
+the number of the match to use. This permits to pick up more than the
+first expression match. Submatch is the submatch to match (max 50 supported).
+The &#8220;no-found&#8221; parameter specifies which string is to be returned in case
+when the regular expression is not found. Note that match and
+submatch start with zero. It currently is not possible to extract
+more than one submatch with a single call.</div></blockquote>
+</div>
+<div class="section" id="field-str-delim-matchnbr">
+<h2>field(str, delim, matchnbr)<a class="headerlink" href="#field-str-delim-matchnbr" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>returns a field-based substring. str is
+the string to search, delim is the delimiter and matchnbr is the
+match to search for (the first match starts at 1). This works similar
+as the field based property-replacer option. Versions prior to 7.3.7
+only support a single character as delimiter character. Starting with
+version 7.3.7, a full string can be used as delimiter. If a single
+character is being used as delimiter, delim is the numerical ascii
+value of the field delimiter character (so that non-printable
+characters can by specified). If a string is used as delmiter, a
+multi-character string (e.g. &#8220;#011&#8221;) is to be specified.</p>
+<p>Note that when a single character is specified as string
+<code class="docutils literal"><span class="pre">field($msg,</span> <span class="pre">&quot;,&quot;,</span> <span class="pre">3)</span></code> a string-based extraction is done, which is
+more performance intense than the equivalent single-character
+<code class="docutils literal"><span class="pre">field($msg,</span> <span class="pre">44</span> <span class="pre">,3)</span></code> extraction. Eg.</p>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre>set $!usr!field = field($msg, 32, 3);  -- the third field, delimited by space
+
+set $!usr!field = field($msg, &quot;#011&quot;, 2); -- the second field, delmited by &quot;#011&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="prifilt-constant">
+<h2>prifilt(constant)<a class="headerlink" href="#prifilt-constant" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>mimics a traditional PRI-based filter (like
+&#8220;*.*&#8221; or &#8220;mail.info&#8221;). The traditional filter string must be given
+as a <strong>constant string</strong>. Dynamic string evaluation is not permitted
+(for performance reasons).</div></blockquote>
+</div>
+<div class="section" id="dyn-inc-bucket-name-litteral-string-str">
+<h2>dyn_inc(bucket_name_litteral_string, str)<a class="headerlink" href="#dyn-inc-bucket-name-litteral-string-str" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Increments counter identified by <code class="docutils literal"><span class="pre">str</span></code> in dyn-stats bucket identified
+by <code class="docutils literal"><span class="pre">bucket_name_litteral_string</span></code>. Returns 0 when increment is successful,
+any other return value indicates increment failed.</p>
+<p>Counters updated here are reported by <strong>impstats</strong>.</p>
+<p>Except for special circumstances (such as memory allocation failing etc),
+increment may fail due to metric-name cardinality being under-estimated.
+Bucket is configured to support a maximum cardinality (to prevent abuse)
+and it rejects increment-operation if it encounters a new(previously unseen)
+metric-name(<code class="docutils literal"><span class="pre">str</span></code>) when full.</p>
+<p><strong>Read more about it here</strong> <a class="reference internal" href="../configuration/dyn_stats.html"><em>Dynamic Stats</em></a></p>
+</div></blockquote>
+</div>
+<div class="section" id="lookup-table-name-litteral-string-key">
+<h2>lookup(table_name_litteral_string, key)<a class="headerlink" href="#lookup-table-name-litteral-string-key" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Lookup tables are a powerful construct to obtain <em>class</em> information based
+on message content. It works on top of a data-file which maps key (to be looked
+up) to value (the result of lookup).</p>
+<p>The idea is to use a message properties (or derivatives of it) as an index
+into a table which then returns another value. For example, $fromhost-ip
+could be used as an index, with the table value representing the type of
+server or the department or remote office it is located in.</p>
+<p><strong>Read more about it here</strong> <a class="reference internal" href="../configuration/lookup_tables.html"><em>Lookup Tables</em></a></p>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Functions</a><ul>
+<li><a class="reference internal" href="#getenv-str">getenv(str)</a></li>
+<li><a class="reference internal" href="#strlen-str">strlen(str)</a></li>
+<li><a class="reference internal" href="#tolower-str">tolower(str)</a></li>
+<li><a class="reference internal" href="#cstr-expr">cstr(expr)</a></li>
+<li><a class="reference internal" href="#cnum-expr">cnum(expr)</a></li>
+<li><a class="reference internal" href="#wrap-str-wrapper-str">wrap(str, wrapper_str)</a></li>
+<li><a class="reference internal" href="#wrap-str-wrapper-str-escaper-str">wrap(str, wrapper_str, escaper_str)</a></li>
+<li><a class="reference internal" href="#replace-str-substr-to-replace-replace-with">replace(str, substr_to_replace, replace_with)</a></li>
+<li><a class="reference internal" href="#re-match-expr-re">re_match(expr, re)</a></li>
+<li><a class="reference internal" href="#re-extract-expr-re-match-submatch-no-found">re_extract(expr, re, match, submatch, no-found)</a></li>
+<li><a class="reference internal" href="#field-str-delim-matchnbr">field(str, delim, matchnbr)</a></li>
+<li><a class="reference internal" href="#prifilt-constant">prifilt(constant)</a></li>
+<li><a class="reference internal" href="#dyn-inc-bucket-name-litteral-string-str">dyn_inc(bucket_name_litteral_string, str)</a></li>
+<li><a class="reference internal" href="#lookup-table-name-litteral-string-key">lookup(table_name_litteral_string, key)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="expressions.html"
+                        title="previous chapter">Expressions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="control_structures.html"
+                        title="next chapter">Control Structures</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/rainerscript/functions.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/rainerscript/functions.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="control_structures.html" title="Control Structures"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="expressions.html" title="Expressions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../configuration/index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >RainerScript</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sample Use Case: Single Central Log Server &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../index.html" />
+    <link rel="up" title="Encrypting Syslog Traffic with TLS (SSL)" href="tls_cert_summary.html" />
+    <link rel="next" title="Setting up the CA" href="tls_cert_ca.html" />
+    <link rel="prev" title="Encrypting Syslog Traffic with TLS (SSL)" href="tls_cert_summary.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tls_cert_ca.html" title="Setting up the CA"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tls_cert_summary.html" title="Encrypting Syslog Traffic with TLS (SSL)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="tls_cert_summary.html" accesskey="U">Encrypting Syslog Traffic with TLS (SSL)</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sample-use-case-single-central-log-server">
+<h1>Sample Use Case: Single Central Log Server<a class="headerlink" href="#sample-use-case-single-central-log-server" title="Permalink to this headline">¶</a></h1>
+<p>We have a quite simple use case. There is one central syslog server,
+named central.example.net. These server is being reported to by two
+Linux machines with name zuse.example.net and turing.example.net. Also,
+there is a third client - ada.example.net - which send both its own
+messages to the central server but also forwards messages receive from
+an UDP-only capable router. We have decided to use ada.example.net
+because it is in the same local network segment as the router and so we
+enjoy TLS&#8217; security benefits for forwarding the router messages inside
+the corporate network. All systems (except the router) use
+<a class="reference external" href="http://www.rsyslog.com/">rsyslog</a> as the syslog software.</p>
+<div class="figure align-center">
+<img alt="" src="../_images/tls_cert_100.jpg" />
+</div>
+<p>Please note that the CA must not necessarily be connected to the rest of
+the network. Actually, it may be considered a security plus if it is
+not. If the CA is reachable via the regular network, it should be
+sufficiently secured (firewal rules et al). Keep in mind that if the
+CA&#8217;s security is breached, your overall system security is breached.</p>
+<p>In case the CA is compromised, you need to regenerate the CA&#8217;s
+certificate as well as all individual machines certificates.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tls_cert_summary.html"
+                        title="previous chapter">Encrypting Syslog Traffic with TLS (SSL)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tls_cert_ca.html"
+                        title="next chapter">Setting up the CA</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/tls_cert_scenario.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/tutorials/tls_cert_scenario.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tls_cert_ca.html" title="Setting up the CA"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tls_cert_summary.html" title="Encrypting Syslog Traffic with TLS (SSL)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="tls_cert_summary.html" >Encrypting Syslog Traffic with TLS (SSL)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

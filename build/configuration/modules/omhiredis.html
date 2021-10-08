@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>omhiredis: Redis Output Module &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Output Modules" href="idx_output.html" />
+    <link rel="next" title="omhttpfs: Hadoop HTTPFS Output Module" href="omhttpfs.html" />
+    <link rel="prev" title="omhdfs: Hadoop Filesystem Output Module" href="omhdfs.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="omhttpfs.html" title="omhttpfs: Hadoop HTTPFS Output Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="omhdfs.html" title="omhdfs: Hadoop Filesystem Output Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" accesskey="U">Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="omhiredis-redis-output-module">
+<h1>omhiredis: Redis Output Module<a class="headerlink" href="#omhiredis-redis-output-module" title="Permalink to this headline">¶</a></h1>
+<p><strong>Module Name:</strong> omhiredis</p>
+<p><strong>Original Author:</strong> Brian Knox &lt;<a class="reference external" href="mailto:bknox&#37;&#52;&#48;digitalocean&#46;com">bknox<span>&#64;</span>digitalocean<span>&#46;</span>com</a>&gt;</p>
+<p><strong>Description</strong></p>
+<p>This module provides native support for writing to Redis,
+using the hiredis client library.</p>
+<p><strong>Action Parameters</strong></p>
+<ul class="simple">
+<li><strong>server</strong>
+Name or address of the Redis server</li>
+<li><strong>serverport</strong>
+Port of the Redis server if the server is not listening on the default port.</li>
+<li><strong>serverpassword</strong>
+Password to support authenticated redis database server to push messages
+across networks and datacenters. Parameter is optional if not provided
+AUTH command wont be sent to the server.</li>
+<li><strong>mode</strong>
+Mode to run the output action in: &#8220;queue&#8221; or &#8220;publish&#8221;. If not supplied, the
+original &#8220;template&#8221; mode is used. Note due to a config parsing bug in 8.13,
+explicitly setting this to &#8220;template&#8221; mode will result in a config parsing
+error.</li>
+<li><strong>template</strong>
+Template is required if using &#8220;template&#8221; mode.</li>
+<li><strong>key</strong>
+Key is required if using &#8220;publish&#8221; or &#8220;queue&#8221; mode.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<p><em>Mode: template</em></p>
+<p>In &#8220;template&#8221; mode, the string constructed by the template is sent
+to Redis as a command. Note this mode has problems with strings
+with spaces in them - full message won&#8217;t work correctly. In this
+mode, the template argument is required, and the key argument
+is meaningless.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">module(load=&#8221;omhiredis&#8221;)</p>
+<dl class="last docutils">
+<dt>template(</dt>
+<dd>name=&#8221;program_count_tmpl&#8221;
+type=&#8221;string&#8221;
+string=&#8221;HINCRBY progcount %programname% 1&#8221;)</dd>
+<dt>action(</dt>
+<dd>name=&#8221;count_programs&#8221;
+server=&#8221;my-redis-server.example.com&#8221;
+serverport=&#8221;6379&#8221;
+type=&#8221;omhiredis&#8221;
+mode=&#8221;template&#8221;
+template=&#8221;program_count_tmpl&#8221;)</dd>
+</dl>
+</dd>
+</dl>
+<p>Here&#8217;s an example redis-cli session where we HGETALL the counts:</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd>&gt; redis-cli
+127.0.0.1:6379&gt; HGETALL progcount
+1) &#8220;rsyslogd&#8221;
+2) &#8220;35&#8221;
+3) &#8220;rsyslogd-pstats&#8221;
+4) &#8220;4302&#8221;</dd>
+</dl>
+<p><em>Mode: queue</em></p>
+<p>In &#8220;queue&#8221; mode, the syslog message is pushed into a Redis list
+at &#8220;key&#8221;, using the LPUSH command. If a template is not supplied,
+the plugin will default to the RSYSLOG_ForwardFormat template.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">module(load=&#8221;omhiredis&#8221;)</p>
+<dl class="last docutils">
+<dt>action(</dt>
+<dd>name=&#8221;push_redis&#8221;
+server=&#8221;my-redis-server.example.com&#8221;
+serverport=&#8221;6379&#8221;
+type=&#8221;omhiredis&#8221;
+mode=&#8221;queue&#8221;
+key=&#8221;my_queue&#8221;)</dd>
+</dl>
+</dd>
+</dl>
+<p>Here&#8217;s an example redis-cli session where we RPOP from the queue:</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">&gt; redis-cli
+127.0.0.1:6379&gt; RPOP my_queue</p>
+<p>&#8220;&lt;46&gt;2015-09-17T10:54:50.080252-04:00 myhost rsyslogd: [origin software=&#8221;rsyslogd&#8221; swVersion=&#8221;8.13.0.master&#8221; x-pid=&#8221;6452&#8221; x-info=&#8221;<a class="reference external" href="http://www.rsyslog.com">http://www.rsyslog.com</a>&#8220;] start&#8221;</p>
+<p class="last">127.0.0.1:6379&gt;</p>
+</dd>
+</dl>
+<p><em>Mode: publish</em></p>
+<p>In &#8220;publish&#8221; mode, the syslog message is published to a Redis
+topic set by &#8220;key&#8221;.  If a template is not supplied, the plugin
+will default to the RSYSLOG_ForwardFormat template.</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">module(load=&#8221;omhiredis&#8221;)</p>
+<dl class="last docutils">
+<dt>action(</dt>
+<dd>name=&#8221;publish_redis&#8221;
+server=&#8221;my-redis-server.example.com&#8221;
+serverport=&#8221;6379&#8221;
+type=&#8221;omhiredis&#8221;
+mode=&#8221;publish&#8221;
+key=&#8221;my_channel&#8221;)</dd>
+</dl>
+</dd>
+</dl>
+<p>Here&#8217;s an example redis-cli session where we SUBSCRIBE to the topic:</p>
+<dl class="docutils">
+<dt>::</dt>
+<dd><p class="first">&gt; redis-cli</p>
+<p>127.0.0.1:6379&gt; subscribe my_channel</p>
+<p>Reading messages... (press Ctrl-C to quit)</p>
+<ol class="arabic simple">
+<li>&#8220;subscribe&#8221;</li>
+<li>&#8220;my_channel&#8221;</li>
+<li>(integer) 1</li>
+</ol>
+<ol class="last arabic simple">
+<li>&#8220;message&#8221;</li>
+<li>&#8220;my_channel&#8221;</li>
+<li>&#8220;&lt;46&gt;2015-09-17T10:55:44.486416-04:00 myhost rsyslogd-pstats: {&#8220;name&#8221;:&#8221;imuxsock&#8221;,&#8221;origin&#8221;:&#8221;imuxsock&#8221;,&#8221;submitted&#8221;:0,&#8221;ratelimit.discarded&#8221;:0,&#8221;ratelimit.numratelimiters&#8221;:0}&#8221;</li>
+</ol>
+</dd>
+</dl>
+<p>This documentation is part of the <a class="reference external" href="http://www.rsyslog.com/">rsyslog</a>
+project.</p>
+<p>Copyright © 2008-2015 by <a class="reference external" href="http://www.gerhards.net/rainer">Rainer
+Gerhards</a> and
+<a class="reference external" href="http://www.adiscon.com/">Adiscon</a>. Released under the GNU GPL version
+3 or higher.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="omhdfs.html"
+                        title="previous chapter">omhdfs: Hadoop Filesystem Output Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="omhttpfs.html"
+                        title="next chapter">omhttpfs: Hadoop HTTPFS Output Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/omhiredis.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/omhiredis.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="omhttpfs.html" title="omhttpfs: Hadoop HTTPFS Output Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="omhdfs.html" title="omhdfs: Hadoop Filesystem Output Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_output.html" >Output Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

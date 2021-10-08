@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Legacy Directives affecting Input Modules &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Legacy Configuration Directives" href="../index_directives.html" />
+    <link rel="next" title="$AllowedSender" href="rsconf1_allowedsender.html" />
+    <link rel="prev" title="$ResetConfigVariables" href="../global/options/rsconf1_resetconfigvariables.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rsconf1_allowedsender.html" title="$AllowedSender"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../global/options/rsconf1_resetconfigvariables.html" title="$ResetConfigVariables"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" accesskey="U">Legacy Configuration Directives</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="legacy-directives-affecting-input-modules">
+<h1>Legacy Directives affecting Input Modules<a class="headerlink" href="#legacy-directives-affecting-input-modules" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="legacy-directives-affecting-multiple-input-modules">
+<h2>Legacy Directives affecting multiple Input Modules<a class="headerlink" href="#legacy-directives-affecting-multiple-input-modules" title="Permalink to this headline">¶</a></h2>
+<p>While these directives only affect input modules, they are global in
+the sense that they cannot be overwritten for specific input
+instances. So they apply globally for all inputs that support these
+directives.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_allowedsender.html">$AllowedSender</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_dropmsgswithmaliciousdnsptrrecords.html">$DropMsgsWithMaliciousDnsPTRRecords</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_controlcharacterescapeprefix.html">$ControlCharacterEscapePrefix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_droptrailinglfonreception.html">$DropTrailingLFOnReception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_escape8bitcharsonreceive.html">$Escape8BitCharactersOnReceive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_escapecontrolcharactersonreceive.html">$EscapeControlCharactersOnReceive</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="immark-specific-directives">
+<h2>immark-specific Directives<a class="headerlink" href="#immark-specific-directives" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rsconf1_markmessageperiod.html">$MarkMessagePeriod</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Legacy Directives affecting Input Modules</a><ul>
+<li><a class="reference internal" href="#legacy-directives-affecting-multiple-input-modules">Legacy Directives affecting multiple Input Modules</a></li>
+<li><a class="reference internal" href="#immark-specific-directives">immark-specific Directives</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../global/options/rsconf1_resetconfigvariables.html"
+                        title="previous chapter">$ResetConfigVariables</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rsconf1_allowedsender.html"
+                        title="next chapter">$AllowedSender</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/input_directives/index.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/input_directives/index.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rsconf1_allowedsender.html" title="$AllowedSender"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../global/options/rsconf1_resetconfigvariables.html" title="$ResetConfigVariables"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../index_directives.html" >Legacy Configuration Directives</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+# Patch series file for quilt, created by quilt setup
+# Sourcedir: rsyslog-8.24.0
+# Source: rsyslog-doc-8.24.0.tar.gz
+# Patchdir: rsyslog-8.24.0
+#
+rsyslog-unit.patch
+rsyslog-flush-dyn-file.patch
+0001-imptcp-fix-Segmentation-Fault-when-octet-count-is-to.patch
+0001-imfile-multiline-timeout-does-not-work-after-rsyslog.patch
+0001-imudp-bugfix-potential-segfault-in-ratelimiting.patch
+pmcisconames-bugfix-potential-misadressing.patch
+pmaixforwardedfrom-bugfix-potential-misadressing.patch
+0001-core-action-if-commitTransaction-fails-try-individua.patch
+0002-core-action-bugfix-100-CPU-utilization-on-suspension.patch
+0001-core-fix-sequence-error-in-msg-object-deserializer.patch
+0001-omfile-bugfix-race-file-when-async-writing-is-enable.patch
+0001-Fix-race-condition-related-to-libfastjson-when-using.patch

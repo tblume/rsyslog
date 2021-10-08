@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imptcp: Plain TCP Syslog &mdash; rsyslog 8.24.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.24.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="rsyslog 8.24.0 documentation" href="../../index.html" />
+    <link rel="up" title="Input Modules" href="idx_input.html" />
+    <link rel="next" title="imrelp: RELP Input Module" href="imrelp.html" />
+    <link rel="prev" title="impstats: Generate Periodic Statistics of Internal Counters" href="impstats.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="imrelp.html" title="imrelp: RELP Input Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="impstats.html" title="impstats: Generate Periodic Statistics of Internal Counters"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" accesskey="U">Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="imptcp-plain-tcp-syslog">
+<h1>imptcp: Plain TCP Syslog<a class="headerlink" href="#imptcp-plain-tcp-syslog" title="Permalink to this headline">¶</a></h1>
+<p>Provides the ability to receive syslog messages via plain TCP syslog.
+This is a specialised input plugin tailored for high performance on
+Linux. It will probably not run on any other platform. Also, it does not
+provide TLS services. Encryption can be provided by using
+<a class="reference external" href="rsyslog_stunnel.html">stunnel</a>.</p>
+<p>This module has no limit on the number of listeners and sessions that
+can be used.</p>
+<p><strong>Author:</strong> Rainer Gerhards &lt;<a class="reference external" href="mailto:rgerhards&#37;&#52;&#48;adiscon&#46;com">rgerhards<span>&#64;</span>adiscon<span>&#46;</span>com</a>&gt;</p>
+<div class="section" id="configuration-directives">
+<h2>Configuration Directives<a class="headerlink" href="#configuration-directives" title="Permalink to this headline">¶</a></h2>
+<p>This plugin has config directives similar named as imtcp, but they all
+have <strong>P</strong>TCP in their name instead of just TCP. Note that only a
+subset of the parameters are supported.</p>
+<div class="section" id="module-parameters">
+<h3>Module Parameters<a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h3>
+<p>These parameters can be used with the &#8220;module()&#8221; statement. They apply
+globaly to all inputs defined by the module.</p>
+<dl class="function">
+<dt>
+<code class="descname">Threads &lt;number&gt;</code></dt>
+<dd><p>Number of helper worker threads to process incoming messages. These
+threads are utilized to pull data off the network. On a busy system,
+additional helper threads (but not more than there are CPUs/Cores)
+can help improving performance. The default value is two, which means
+there is a default thread count of three (the main input thread plus
+two helpers). No more than 16 threads can be set (if tried to,
+rsyslog always resorts to 16).</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">processOnPoller on/off</code></dt>
+<dd><p><em>Defaults to on</em></p>
+<p>Instructs imptcp to process messages on poller thread opportunistically.
+This leads to lower resource footprint(as poller thread doubles up as
+message-processing thread too). &#8220;On&#8221; works best when imptcp is handling
+low ingestion rates.</p>
+<p>At high throughput though, it causes polling delay(as poller spends time
+processing messages, which keeps connections in read-ready state longer
+than they need to be, filling socket-buffer, hence eventually applying
+backpressure).</p>
+<p>It defaults to allowing messages to be processed on poller (for backward
+compatibility).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="input-parameters">
+<h3>Input Parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<p>These parameters can be used with the &#8220;input()&#8221; statement. They apply to
+the input they are specified with.</p>
+<dl class="function">
+<dt>
+<code class="descname">port &lt;number&gt;</code></dt>
+<dd><p><em>Mandatory</em></p>
+<p>Select a port to listen on. It is an error to specify
+both <cite>path</cite> and <cite>port</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">path &lt;name&gt;</code></dt>
+<dd><p>A path on the filesystem for a unix domain socket. It is an error to specify
+both <cite>path</cite> and <cite>port</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">unlink on/off</code></dt>
+<dd><p><em>Default: off</em></p>
+<p>If a unix domain socket is being used this controls whether or not the socket
+is unlinked before listening and after closing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">name &lt;name&gt;</code></dt>
+<dd><p>Sets a name for the inputname property. If no name is set &#8220;imptcp&#8221;
+is used by default. Setting a name is not strictly necessary, but can
+be useful to apply filtering based on which input the message was
+received from. Note that the name also shows up in
+<a class="reference internal" href="impstats.html"><em>impstats</em></a> logs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">ruleset &lt;name&gt;</code></dt>
+<dd><p>Binds specified ruleset to this input. If not set, the default
+ruleset is bound.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">address &lt;name&gt;</code></dt>
+<dd><p><em>Default: all interfaces</em></p>
+<p>On multi-homed machines, specifies to which local address the
+listerner should be bound.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">AddtlFrameDelimiter &lt;Delimiter&gt;</code></dt>
+<dd><p>This directive permits to specify an additional frame delimiter for
+plain tcp syslog. The industry-standard specifies using the LF
+character as frame delimiter. Some vendors, notable Juniper in their
+NetScreen products, use an invalid frame delimiter, in Juniper&#8217;s case
+the NUL character. This directive permits to specify the ASCII value
+of the delimiter in question. Please note that this does not
+guarantee that all wrong implementations can be cured with this
+directive. It is not even a sure fix with all versions of NetScreen,
+as I suggest the NUL character is the effect of a (common) coding
+error and thus will probably go away at some time in the future. But
+for the time being, the value 0 can probably be used to make rsyslog
+handle NetScreen&#8217;s invalid syslog/tcp framing. For additional
+information, see this <a class="reference external" href="http://kb.monitorware.com/problem-with-netscreen-log-t1652.html">forum
+thread</a>.
+<strong>If this doesn&#8217;t work for you, please do not blame the rsyslog team.
+Instead file a bug report with Juniper!</strong></p>
+<p>Note that a similar, but worse, issue exists with Cisco&#8217;s IOS
+implementation. They do not use any framing at all. This is confirmed
+from Cisco&#8217;s side, but there seems to be very limited interest in
+fixing this issue. This directive <strong>can not</strong> fix the Cisco bug. That
+would require much more code changes, which I was unable to do so
+far. Full details can be found at the <a class="reference external" href="http://www.rsyslog.com/Article321.phtml">Cisco tcp syslog
+anomaly</a> page.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">SupportOctetCountedFraming on/off</code></dt>
+<dd><p><em>Defaults to &#8220;on&#8221;</em></p>
+<p>The legacy octed-counted framing (similar to RFC5425
+framing) is activated. This is the default and should be left
+unchanged until you know very well what you do. It may be useful to
+turn it off, if you know this framing is not used and some senders
+emit multi-line messages into the message stream.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">NotifyOnConnectionClose on/off</code></dt>
+<dd><p><em>Defaults to off</em></p>
+<p>instructs imptcp to emit a message if a remote peer closes the
+connection.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive on/off</code></dt>
+<dd><p><em>Defaults to off</em></p>
+<p>enable of disable keep-alive packets at the tcp socket layer. The
+default is to disable them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Probes &lt;number&gt;</code></dt>
+<dd><p>The number of unacknowledged probes to send before considering the
+connection dead and notifying the application layer. The default, 0,
+means that the operating system defaults are used. This has only
+effect if keep-alive is enabled. The functionality may not be
+available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Interval &lt;number&gt;</code></dt>
+<dd><p>The interval between subsequential keepalive probes, regardless of
+what the connection has exchanged in the meantime. The default, 0,
+means that the operating system defaults are used. This has only
+effect if keep-alive is enabled. The functionality may not be
+available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">KeepAlive.Time &lt;number&gt;</code></dt>
+<dd><p>The interval between the last data packet sent (simple ACKs are not
+considered data) and the first keepalive probe; after the connection
+is marked to need keepalive, this counter is not used any further.
+The default, 0, means that the operating system defaults are used.
+This has only effect if keep-alive is enabled. The functionality may
+not be available on all platforms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Interval [number]</code></dt>
+<dd><p><em>Default is 0, which turns off rate limiting</em></p>
+<p>Specifies the rate-limiting interval in seconds. Set it to a number
+of seconds (5 recommended) to activate rate-limiting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">RateLimit.Burst [number]</code></dt>
+<dd><p><em>Default is 10,000</em></p>
+<p>Specifies the rate-limiting burst in number of messages.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">compression.mode [mode]</code></dt>
+<dd><p><em>Default is none</em></p>
+<p>This is the counterpart to the compression modes set in
+<a class="reference internal" href="omfwd.html"><em>omfwd</em></a>.
+Please see it&#8217;s documentation for details.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="caveats-known-bugs">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#caveats-known-bugs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>module always binds to all interfaces</li>
+</ul>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>This sets up a TCP server on port 514:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imptcp&quot;) # needs to be done just once
+input(type=&quot;imptcp&quot; port=&quot;514&quot;)
+</pre></div>
+</div>
+<p>This creates a listener that listens on the local loopback
+interface, only.</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imptcp&quot;) # needs to be done just once
+input(type=&quot;imptcp&quot; port=&quot;514&quot; address=&quot;127.0.0.1&quot;)
+</pre></div>
+</div>
+<p>Create a unix domain socket:</p>
+<div class="highlight-python"><div class="highlight"><pre>module(load=&quot;imptcp&quot;) # needs to be done just once
+input(type=&quot;imptcp&quot; path=&quot;/tmp/unix.sock&quot; unlink=&quot;on&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-configuration-directives">
+<h2>Legacy Configuration Directives<a class="headerlink" href="#legacy-configuration-directives" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerAddtlFrameDelimiter &lt;Delimiter&gt;</code></dt>
+<dd><p>Equivalent to: AddTLFrameDelimiter</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPSupportOctetCountedFraming on/off</code></dt>
+<dd><p>Equivalent to: SupportOctetCountedFraming</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerNotifyOnConnectionClose on/off</code></dt>
+<dd><p>Equivalent to: NotifyOnConnectionClose.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerKeepAlive &lt;on/**off**&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerKeepAlive_probes &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Probes</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerKeepAlive_intvl &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Interval</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerKeepAlive_time &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: KeepAlive.Time</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerRun &lt;port&gt;</code></dt>
+<dd><p>Equivalent to: Port</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerInputName &lt;name&gt;</code></dt>
+<dd><p>Equivalent to: Name</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerBindRuleset &lt;name&gt;</code></dt>
+<dd><p>Equivalent to: Ruleset</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerHelperThreads &lt;number&gt;</code></dt>
+<dd><p>Equivalent to: threads</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descname">$InputPTCPServerListenIP &lt;name&gt;</code></dt>
+<dd><p>Equivalent to: Address</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>Caveats/Known Bugs<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>module always binds to all interfaces</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>This sets up a TCP server on port 514:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ModLoad imptcp # needs to be done just once
+$InputPTCPServerRun 514
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">imptcp: Plain TCP Syslog</a><ul>
+<li><a class="reference internal" href="#configuration-directives">Configuration Directives</a><ul>
+<li><a class="reference internal" href="#module-parameters">Module Parameters</a></li>
+<li><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#caveats-known-bugs">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#legacy-configuration-directives">Legacy Configuration Directives</a></li>
+<li><a class="reference internal" href="#id1">Caveats/Known Bugs</a></li>
+<li><a class="reference internal" href="#id2">Example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="impstats.html"
+                        title="previous chapter">impstats: Generate Periodic Statistics of Internal Counters</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="imrelp.html"
+                        title="next chapter">imrelp: RELP Input Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/configuration/modules/imptcp.txt"
+           rel="nofollow">Show Source</a></li>
+    <li><a href="https://github.com/rsyslog/rsyslog-doc/edit/master/source/configuration/modules/imptcp.rst"
+           rel="nofollow">Edit on GitHub</a></li>
+  </ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="imrelp.html" title="imrelp: RELP Input Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="impstats.html" title="impstats: Generate Periodic Statistics of Internal Counters"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">rsyslog 8.24.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Configuration</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Modules</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="idx_input.html" >Input Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2008-2016, Rainer Gerhards and Adiscon.
+    </div>
+  </body>
+</html>
